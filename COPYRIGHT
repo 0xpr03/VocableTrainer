@@ -1,0 +1,23 @@
+The VocableTrainer Project is copyright 2016, Aron Heinecke.
+
+All files in the project carrying such
+notice may not be copied, modified, or distributed except
+according to those terms.
+
+The VocableTrainer Project includes packages written by third parties.
+The following third party packages are included, and carry
+their own copyright notices and license terms:
+
+* The log4j-api-2.5.jar, log4j-core-2.5.jar, log4j-iostreams-2.5.jar files,
+  carrying the log4j project, by the Apache Software Foundation.
+  Licensed under Apache 2.0 license <http://www.apache.org/licenses/LICENSE-2.0>.
+
+* The sqlite-jdbc-3.8.11.2.jar files,
+  carrying the sqlite implementation for java, by David Crawshaw
+  and Taro L. Saito.
+  Licensed under Apache 2.0 license <http://www.apache.org/licenses/>
+
+* The mig-layout15-swing.jar and miglayout-src.zip files,
+  carrying an layout manager by the eclipse project,
+  by Mikael Grev, MiG InfoCom AB.
+  Licensed under the BSD license.
