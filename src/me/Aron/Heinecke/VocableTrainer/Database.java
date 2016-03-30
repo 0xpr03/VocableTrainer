@@ -25,7 +25,7 @@ import javax.swing.JOptionPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import me.Aron.Heinecke.VocableTrainer.lib.DBError;
+import me.Aron.Heinecke.VocableTrainer.lib.DBResult;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableElement;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
 
@@ -105,7 +105,7 @@ public class Database {
 		}
 	}
 	
-	static DBError<List<TDTableElement>> getVocs(TDTableInfoElement table){
+	static DBResult<List<TDTableElement>> getVocs(TDTableInfoElement table){
 		try{
 			Statement stm = connection.createStatement();
 			ResultSet rs = stm.executeQuery(SQL_GET_TBL_VOC.replace("%table%", table.getName()));
@@ -116,10 +116,10 @@ public class Database {
 			}
 			rs.close();
 			stm.close();
-			return new DBError<List<TDTableElement>>(data);
+			return new DBResult<List<TDTableElement>>(data);
 		}catch(Exception e){
 			logger.error("{}",e);
-			return new DBError<List<TDTableElement>>(e);
+			return new DBResult<List<TDTableElement>>(e);
 		}
 	}
 	
@@ -128,23 +128,23 @@ public class Database {
 	 * @param name
 	 * @return
 	 */
-	private static DBError<String> getTableAlias(String name){
+	private static DBResult<String> getTableAlias(String name){
 		try{
 			PreparedStatement stm = connection.prepareStatement(SQL_GET_TABLE_ALIAS);
 			stm.setString(1, name);
 			ResultSet rs = stm.executeQuery();
-			DBError<String> dbe;
+			DBResult<String> dbe;
 			if(rs.next()){
-				dbe = new DBError<>(rs.getString(1));
+				dbe = new DBResult<>(rs.getString(1));
 			}else{
-				dbe = new DBError<>();
+				dbe = new DBResult<>();
 			}
 			rs.close();
 			stm.close();
 			return dbe;
 		} catch (Exception e){
 			logger.error("{}",e);
-			return new DBError<String>(e);
+			return new DBResult<String>(e);
 		}
 	}
 	
@@ -169,7 +169,7 @@ public class Database {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public static DBError updateTableDates(List<TDTableInfoElement> tables){
+	public static DBResult updateTableDates(List<TDTableInfoElement> tables){
 		logger.entry();
 		try{
 			PreparedStatement stm = connection.prepareStatement(SQL_UPDATE_TBL_DATE);
@@ -178,10 +178,10 @@ public class Database {
 				stm.setString(2, elem.getName());
 				stm.executeUpdate();
 			}
-			return new DBError<>();
+			return new DBResult<>();
 		} catch(Exception e){
 			logger.error("{}",e);
-			return new DBError<>(e);
+			return new DBResult<>(e);
 		}
 	}
 	
@@ -191,7 +191,7 @@ public class Database {
 	 * @return error
 	 */
 	@SuppressWarnings("rawtypes")
-	public static DBError updateVocable(TDTableElement elem){
+	public static DBResult updateVocable(TDTableElement elem){
 		try{
 			PreparedStatement stm = connection.prepareStatement(SQL_UPDATE_VOC.replace("%table%", elem.getTable()));
 			logger.debug("Points: {}",elem.getPoints());
@@ -199,17 +199,17 @@ public class Database {
 			stm.setLong(2, getDateSec(elem.getDate()));
 			stm.setString(3, elem.getWord_A());
 			stm.setString(4, elem.getWord_B());
-			DBError dbe;
+			DBResult dbe;
 			if(stm.executeUpdate() == 1){
-				dbe = new DBError<>();
+				dbe = new DBResult<>();
 			}else{
-				dbe = new DBError<>(new Exception("Updated failed, mismatched row count"));
+				dbe = new DBResult<>(new Exception("Updated failed, mismatched row count"));
 			}
 			stm.close();
 			return dbe;
 		}catch(Exception e){
 			logger.error("{}",e);
-			return new DBError<>(e);
+			return new DBResult<>(e);
 		}
 	}
 	
@@ -219,7 +219,7 @@ public class Database {
 	 * @param dbe error showed after the message
 	 * @param title
 	 */
-	public static void showErrorDialog(String message, DBError<?> dbe, String title){
+	public static void showErrorDialog(String message, DBResult<?> dbe, String title){
 		JOptionPane.showMessageDialog(null, message+dbe.error.toString(), title, JOptionPane.ERROR_MESSAGE);
 	}
 	
@@ -228,22 +228,22 @@ public class Database {
 	 * Not thread safe
 	 * @return
 	 */
-	public static DBError<String> getNewVocTableName(){
+	public static DBResult<String> getNewVocTableName(){
 		try{
 			Statement stm = connection.createStatement();
 			ResultSet rs = stm.executeQuery(SQL_GET_NEW_NAME);
-			DBError<String> dbe;
+			DBResult<String> dbe;
 			if(rs.next()){
-				dbe = new DBError<String>(prefix_TBL_VOC+rs.getInt(1));
+				dbe = new DBResult<String>(prefix_TBL_VOC+rs.getInt(1));
 			}else{
-				dbe = new DBError<String>(new Exception("NO value!"));
+				dbe = new DBResult<String>(new Exception("NO value!"));
 			}
 			rs.close();
 			stm.close();
 			return dbe;
 		}catch(Exception e){
 			logger.error("{}",e);
-			return new DBError<String>(e);
+			return new DBResult<String>(e);
 		}
 	}
 	
@@ -269,7 +269,7 @@ public class Database {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public static DBError updateVocs(List<TDTableElement> data, TDTableInfoElement table) {
+	public static DBResult updateVocs(List<TDTableElement> data, TDTableInfoElement table) {
 		String temp_tbl = getTempName();
 		try {
 			{ // insert tbl into voc_table if not existent (new tbl)
@@ -331,7 +331,7 @@ public class Database {
 			}
 		} catch (SQLException e) {
 			logger.error("Error on updateVoc {}",e);
-			return new DBError(e);
+			return new DBResult(e);
 		} finally {
 			try {
 				Statement stm = connection.createStatement();
@@ -341,7 +341,7 @@ public class Database {
 				logger.error("{}",e);
 			}
 		}
-		return new DBError();
+		return new DBResult();
 	}
 	
 	private static String getSQL_DELETE_TBL(String table){
@@ -354,7 +354,7 @@ public class Database {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public static DBError deleteTable(TDTableInfoElement table){
+	public static DBResult deleteTable(TDTableInfoElement table){
 		try{
 			{
 			Statement stm = connection.createStatement();
@@ -367,35 +367,35 @@ public class Database {
 			stm.executeUpdate();
 			stm.close();
 			}
-			return new DBError<>();
+			return new DBResult<>();
 		} catch (Exception e){
 			logger.error("{}",e);
-			return new DBError<>(e);
+			return new DBResult<>(e);
 		}
 	}
 	
-	public static DBError<TDTableElement> getRandomVocable(TDTableInfoElement table, int max_date_sec, int max_points){
+	public static DBResult<TDTableElement> getRandomVocable(TDTableInfoElement table, int max_date_sec, int max_points){
 		try{
 			PreparedStatement stm = connection.prepareStatement(SQL_GET_VOCABLE_RND.replace("%table%", table.getName()));
 			stm.setInt(1, max_date_sec);
 			stm.setInt(2, max_points);
 			ResultSet rs = stm.executeQuery();
-			DBError<TDTableElement> dbe;
+			DBResult<TDTableElement> dbe;
 			if(rs.next()){
-				dbe = new DBError<>(new TDTableElement(rs.getString(1), rs.getString(2), rs.getString(3), getDate(rs.getInt(4)), rs.getInt(5), table.getName()));
+				dbe = new DBResult<>(new TDTableElement(rs.getString(1), rs.getString(2), rs.getString(3), getDate(rs.getInt(4)), rs.getInt(5), table.getName()));
 			}else{
-				dbe = new DBError<>();
+				dbe = new DBResult<>();
 			}
 			rs.close();
 			stm.close();
 			return dbe;
 		} catch(Exception e){
 			logger.error("{}",e);
-			return new DBError<>(e);
+			return new DBResult<>(e);
 		}
 	}
 	
-	public static DBError<List<TDTableInfoElement>> getTables(){
+	public static DBResult<List<TDTableInfoElement>> getTables(){
 		try{
 			Statement stm = connection.createStatement();
 			ResultSet rs = stm.executeQuery(SQL_GET_TABLES);
@@ -414,10 +414,10 @@ public class Database {
 			}
 			rs.close();
 			stm.close();
-			return new DBError<>(data);
+			return new DBResult<>(data);
 		}catch(Exception e){
 			logger.error("{}",e);
-			return new DBError<>(e);
+			return new DBResult<>(e);
 		}
 	}
 	
@@ -427,7 +427,7 @@ public class Database {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public static DBError updateTableInfo(TDTableInfoElement table){
+	public static DBResult updateTableInfo(TDTableInfoElement table){
 		try {
 			PreparedStatement stm = connection.prepareStatement(SQL_UPDATE_TBL_INFO);
 			stm.setString(1, table.getAlias());
@@ -436,10 +436,10 @@ public class Database {
 			stm.setString(4, table.getName());
 			stm.executeUpdate();
 			stm.close();
-			return new DBError();
+			return new DBResult();
 		} catch (SQLException e) {
 			logger.error("Error on renameTable {}",e);
-			return new DBError(e);
+			return new DBResult(e);
 		}
 	}
 	

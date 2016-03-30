@@ -12,22 +12,22 @@ package me.Aron.Heinecke.VocableTrainer.lib;
  * Simple error & value wrapper
  * @author Aron Heinecke
  */
-public class DBError<T> {
+public class DBResult<T> {
 	public boolean isError;
 	public Exception error;
 	public T value;
 	
-	public DBError(){
+	public DBResult(){
 		isError = false;
 		error = null;
 		this.value = null;
 	}
-	public DBError(T value){
+	public DBResult(T value){
 		this.value = value;
 		this.isError = false;
 		this.error = null;
 	}
-	public DBError(Exception e){
+	public DBResult(Exception e){
 		error = e;
 		isError = true;
 	}

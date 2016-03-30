@@ -17,12 +17,12 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import me.Aron.Heinecke.VocableTrainer.lib.DBError;
+import me.Aron.Heinecke.VocableTrainer.lib.DBResult;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableElement;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
 
 /**
- * Class storing trainer related data & running DB commands
+ * Trainer managing points, updates etc
  * @author Aron Heinecke
  */
 public class Trainer {
@@ -150,7 +150,7 @@ public class Trainer {
 		currentElement = null;
 		while(currentElement == null && !usableTeables.isEmpty()){
 			TDTableInfoElement selectedDB = usableTeables.get(getRandom());
-			DBError<TDTableElement> result = Database.getRandomVocable(selectedDB, max_date, Database.MAX_POINTS);
+			DBResult<TDTableElement> result = Database.getRandomVocable(selectedDB, max_date, Database.MAX_POINTS);
 			if(result.isError){
 				Database.showErrorDialog("Error on DB retrieval ", result, "DB Error");
 				break;
@@ -189,11 +189,14 @@ public class Trainer {
 		}
 	}
 	
+	/**
+	 * Update current element in the db, set date to current one
+	 */
 	private void updateElem(){
 		if(currentElement != null){
 			currentElement.setDate(new Date());
 			@SuppressWarnings("rawtypes")
-			DBError dbe = Database.updateVocable(currentElement);
+			DBResult dbe = Database.updateVocable(currentElement);
 			if(dbe.isError){
 				Database.showErrorDialog("Error on DB update ", dbe, "DB Error");
 			}
@@ -202,6 +205,7 @@ public class Trainer {
 	
 	/**
 	 * Exit function, update last_used dates and current element
+	 * Has to be called to avoid progress loss
 	 */
 	public void exit(){
 		updateElem();

@@ -27,7 +27,6 @@ import net.miginfocom.swing.MigLayout;
 /**
  * Custom dialog for column name changes
  * @author Aron Heinecke
- *
  */
 public class ColumnNameDialog extends JDialog {
 
@@ -42,7 +41,6 @@ public class ColumnNameDialog extends JDialog {
 		super(parent);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setModal(true);
-		
 		setBounds(100, 100, 450, 178);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -105,7 +103,10 @@ public class ColumnNameDialog extends JDialog {
 				buttonPane.add(cancelButton);
 			}
 		}
+		
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		this.pack();
+		this.setLocationRelativeTo(parent);
 		setVisible(true);
 	}
 }

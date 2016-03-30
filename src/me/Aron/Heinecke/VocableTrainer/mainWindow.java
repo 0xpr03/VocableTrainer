@@ -55,7 +55,7 @@ import org.apache.logging.log4j.Logger;
 
 import me.Aron.Heinecke.VocableTrainer.Trainer.TestMode;
 import me.Aron.Heinecke.VocableTrainer.lib.ColumnNameDialog;
-import me.Aron.Heinecke.VocableTrainer.lib.DBError;
+import me.Aron.Heinecke.VocableTrainer.lib.DBResult;
 import me.Aron.Heinecke.VocableTrainer.lib.ForcedListSelectionModel;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableElement;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
@@ -67,6 +67,7 @@ import net.miginfocom.swing.MigLayout;
 import java.awt.Dimension;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+import java.awt.Font;
 
 //TODO: replace table with layered pane
 /**
@@ -81,7 +82,7 @@ public class mainWindow {
 		START,LIST_EDIT,LIST_CHOOSE,TRAINER
 	}
 
-	private JFrame frmVocabletrainerAron;
+	private JFrame frame;
 	private JTable listeditTable;
 	private JTextArea vocable_showed;
 	private JTable chooseList;
@@ -126,7 +127,8 @@ public class mainWindow {
 		initialize();
 		TAB = WINDOW_STATE.START;
 		switchTab(TAB);
-		this.frmVocabletrainerAron.setVisible(true);
+		frame.pack();
+		this.frame.setVisible(true);
 		LISTPICKERDATA = new ListPickerData();
 		this.LISTEDITDATA = new ListData();
 	}
@@ -136,20 +138,20 @@ public class mainWindow {
 	 */
 	@SuppressWarnings("serial")
 	private void initialize() {
-		frmVocabletrainerAron = new JFrame();
-		frmVocabletrainerAron.setTitle("VocableTrainer - "+version);
-		frmVocabletrainerAron.addWindowListener(new WindowAdapter() {
+		frame = new JFrame();
+		frame.setTitle("VocableTrainer - "+version);
+		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
 				logger.entry();
 				exit();
 			}
 		});
-		frmVocabletrainerAron.setBounds(100, 100, 588, 300);
-		frmVocabletrainerAron.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.setBounds(100, 100, 625, 300);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
 		menuBar = new JMenuBar();
-		frmVocabletrainerAron.setJMenuBar(menuBar);
+		frame.setJMenuBar(menuBar);
 		
 		JMenu mnMenu = new JMenu("Menu");
 		menuBar.add(mnMenu);
@@ -169,16 +171,16 @@ public class mainWindow {
 		mnHelp.add(mntmAbout);
 		mntmAbout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane.showMessageDialog(frmVocabletrainerAron, "VocableTrainer version "+version+"\nCopyright Aron Heinecke 2016", "About", JOptionPane.INFORMATION_MESSAGE, null);
+				JOptionPane.showMessageDialog(frame, "VocableTrainer version "+version+"\nCopyright Aron Heinecke 2016", "About", JOptionPane.INFORMATION_MESSAGE, null);
 			}
 		});
-		frmVocabletrainerAron.getContentPane().setLayout(new BorderLayout(0, 0));
+		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		tabbedPane = new JCustomTabbedPane();
 		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		tabbedPane.setFocusable(false);
 		tabbedPane.setEnabled(false);
-		frmVocabletrainerAron.getContentPane().add(tabbedPane, BorderLayout.CENTER);
+		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		
 		JPanel panelStart = new JPanel();
 		tabbedPane.addTab("", null, panelStart, null);
@@ -255,7 +257,7 @@ public class mainWindow {
 		JButton btnSetColumns = new JButton("Set Columns");
 		btnSetColumns.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new ColumnNameDialog(frmVocabletrainerAron,LISTEDITDATA.table);
+				new ColumnNameDialog(frame,LISTEDITDATA.table);
 				actualizeColName();
 			}
 		});
@@ -421,7 +423,7 @@ public class mainWindow {
 				for(int i = 0; i < listEditModel.getSize(); i++){
 					elem = listEditModel.getTDLEAt(i);
 					if((elem.getWord_A().equals("") && !elem.getWord_B().equals("")) || (!elem.getWord_A().equals("") && elem.getWord_B().equals(""))){
-						JOptionPane.showMessageDialog(frmVocabletrainerAron, "You have invalid data in the table!\nVocable & Answer have to be set.", "Unable to save", JOptionPane.WARNING_MESSAGE, null);
+						JOptionPane.showMessageDialog(frame, "You have invalid data in the table!\nVocable & Answer have to be set.", "Unable to save", JOptionPane.WARNING_MESSAGE, null);
 						listeditTable.changeSelection(i, 0, false, false);
 						return;
 					}
@@ -438,7 +440,7 @@ public class mainWindow {
 		JButton btnDiscardChanges = new JButton("Discard Changes");
 		btnDiscardChanges.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int chosen = JOptionPane.showConfirmDialog(frmVocabletrainerAron, "Do you really want to exit ?", "Exit to start", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null);
+				int chosen = JOptionPane.showConfirmDialog(frame, "Do you really want to exit ?", "Exit to start", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null);
 				if(chosen == 0)
 					switchTab(WINDOW_STATE.START);
 			}
@@ -505,7 +507,7 @@ public class mainWindow {
 				if(chooseList.getSelectedRow() > -1){
 					int row = chooseList.convertRowIndexToModel(chooseList.getSelectedRow());
 					TDTableInfoElement tbl = listChooseModel.getTDLEAt(row);
-					int out = JOptionPane.showConfirmDialog(frmVocabletrainerAron, "Do you really want to delete the list \""+tbl.getAlias()+"\" ?", "Delete List", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					int out = JOptionPane.showConfirmDialog(frame, "Do you really want to delete the list \""+tbl.getAlias()+"\" ?", "Delete List", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 					if(out == 0){
 						Database.deleteTable(tbl);
 						listChooseModel.remove(row);
@@ -572,6 +574,7 @@ public class mainWindow {
 		panelTrain.add(scrollPane_3, "cell 0 1,grow");
 		
 		vocable_showed = new JTextArea();
+		vocable_showed.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		scrollPane_3.setViewportView(vocable_showed);
 		vocable_showed.setForeground(new Color(0, 0, 0));
 		vocable_showed.setBackground(UIManager.getColor("EditorPane.background"));
@@ -581,6 +584,7 @@ public class mainWindow {
 		panelTrain.add(scrollPane_2, "cell 0 2,grow");
 		
 		vocInput = new JTextField();
+		vocInput.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		vocInput.setBackground(Color.WHITE);
 		vocInput.setMargin(new Insets(0, 2, 0, 0));
 		vocInput.setCaretColor(Color.BLACK);
@@ -609,7 +613,7 @@ public class mainWindow {
 			public void actionPerformed(ActionEvent e) {
 				btnShowTip.setEnabled(false);
 				vocable_showed.setText(vocable_showed.getText() + "\n"+TRAINER.getTip());
-				frmVocabletrainerAron.getRootPane().setDefaultButton(btnVerify);
+				frame.getRootPane().setDefaultButton(btnVerify);
 				vocInput.requestFocus();
 			}
 		});
@@ -629,11 +633,11 @@ public class mainWindow {
 		Component horizontalGlue_2 = Box.createHorizontalGlue();
 		panel_1.add(horizontalGlue_2, "cell 0 0 2 1,alignx left,aligny top");
 		
-		JButton btnExitTrainer = new JButton("End");
+		JButton btnExitTrainer = new JButton("Exit Training");
 		btnExitTrainer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(!TRAINER.isFinished()){
-					int chosen = JOptionPane.showConfirmDialog(frmVocabletrainerAron, "Do you really want to exit ?", "Exit to start", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null);
+					int chosen = JOptionPane.showConfirmDialog(frame, "Do you really want to exit ?", "Exit to start", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null);
 					if(chosen != 0)
 						return;
 				}
@@ -684,7 +688,7 @@ public class mainWindow {
 	}
 	
 	private void showSTARTTab(){
-		frmVocabletrainerAron.getRootPane().setDefaultButton(btnStartTraining);
+		frame.getRootPane().setDefaultButton(btnStartTraining);
 		tabbedPane.setSelectedIndex(0);
 	}
 	
@@ -731,11 +735,11 @@ public class mainWindow {
 		panel_DaySpinner.setVisible(LISTPICKERDATA.isMulti_select());
 		comboTrainerMode.setVisible(LISTPICKERDATA.isMulti_select());
 		lblTestMode.setVisible(LISTPICKERDATA.isMulti_select());
-		frmVocabletrainerAron.getRootPane().setDefaultButton(btnOkChooseList);
+		frame.getRootPane().setDefaultButton(btnOkChooseList);
 		tabbedPane.setSelectedIndex(2);
 		this.btnRenameTable_CL.setEnabled(false);
 		this.btnOkChooseList.setEnabled(false);
-		DBError<List<TDTableInfoElement>> result = Database.getTables();
+		DBResult<List<TDTableInfoElement>> result = Database.getTables();
 		if(!result.isError)
 			listChooseModel.add(result.value);
 	}
@@ -750,13 +754,13 @@ public class mainWindow {
 			logger.debug("Loading data..");
 			LISTEDITDATA.table = LISTPICKERDATA.getPicked().get(0);
 			LISTEDITDATA.isNew = false;
-			actualizeColName();
 			listEditModel.add(Database.getVocs(LISTEDITDATA.table).value);
 			LISTPICKERDATA = new ListPickerData();
 		}else{
 			this.LISTEDITDATA = new ListData();
 			listEditModel.resetColumnNames();
 		}
+		actualizeColName();
 		actualizeListEditTitle();
 		EDIT_ROW_CHANGE = true;
 		this.textEditVocable.setText("");
@@ -787,7 +791,7 @@ public class mainWindow {
 	 * Reset trainer form AND show new vocable
 	 */
 	private void resetTrainerForm(){
-		frmVocabletrainerAron.getRootPane().setDefaultButton(this.btnVerify);
+		frame.getRootPane().setDefaultButton(this.btnVerify);
 		this.vocInput.setText("");
 		String vocable = TRAINER.getNewVocable();
 		vocInput.setBackground(Color.WHITE);
@@ -849,14 +853,14 @@ public class mainWindow {
 		switch(TAB){
 		case LIST_EDIT:
 		case TRAINER:
-			int chosen = JOptionPane.showConfirmDialog(frmVocabletrainerAron, "Do you really want to exit ?", "Exit to start", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null);
+			int chosen = JOptionPane.showConfirmDialog(frame, "Do you really want to exit ?", "Exit to start", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null);
 			if(chosen != 0)
 				return;
 			break;
 		default:
 			break;
 		}
-		frmVocabletrainerAron.setEnabled(false);
+		frame.setEnabled(false);
 		switchTab(WINDOW_STATE.START);
 		System.exit(0);
 	}
