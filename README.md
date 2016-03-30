@@ -1,7 +1,7 @@
 VocableTrainer
 ==============
 
-Simple vocable trainer in java.
+Simple vocable trainer in java.  
 
 ### Features
 - create lists as A - B column
@@ -11,6 +11,8 @@ Simple vocable trainer in java.
 - training with multiple lists at once
 - using internal sqlite lib, take your lists with you on your usb stick or mail, everything in one file
 - lightweight runnable from linux/mac/windows
+
+### Please see the [wiki](https://github.com/0xpr03/VocableTrainer/wiki) for further information.
 
 ### Missing features
 - Import/export of lists
