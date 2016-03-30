@@ -12,6 +12,7 @@ import java.util.Date;
 
 /**
  * Table element holding all vocable row relevant data
+ * Used by editList data model
  * @author Aron Heinecke
  */
 public class TDTableElement {

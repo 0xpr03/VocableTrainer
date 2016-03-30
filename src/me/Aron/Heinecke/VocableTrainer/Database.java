@@ -29,6 +29,10 @@ import me.Aron.Heinecke.VocableTrainer.lib.DBError;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableElement;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
 
+/**
+ * Global database instance
+ * @author Aron Heinecke
+ */
 public class Database {
 	
 	private static final Logger logger = LogManager.getLogger();

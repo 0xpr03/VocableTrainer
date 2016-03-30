@@ -16,6 +16,10 @@ import javax.swing.UIManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Main Class
+ * @author Aron Heinecke
+ */
 public class VocableTrainer {
 	private final static Logger logger = LogManager.getLogger();
 	private final static String version = "0.1";
@@ -46,7 +50,7 @@ public class VocableTrainer {
 		
 		while (true) {
 			try {
-				// Make sure that the Java VM don't quit this program.
+				// Make sure that the Java VM doesn't quit this program.
 				Thread.sleep(100);
 			} catch (Exception e) {/* ignore */
 			}

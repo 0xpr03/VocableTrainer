@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
 import me.Aron.Heinecke.VocableTrainer.mainWindow.WINDOW_STATE;
 
+/**
+ * Data object holding data for the list chooser
+ * @author Aron Heinecke
+ */
 public class ListPickerData {
 	/**
 	 * Tab to show afterwards

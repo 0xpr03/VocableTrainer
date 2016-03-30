@@ -45,6 +45,12 @@ public class Trainer {
 		A_B,B_A,AB
 	};
 	
+	/**
+	 * Create a new Trainer object
+	 * @param tables list of tables which should be used
+	 * @param max_days vocable where date > max_days are considered old enough to be used, if the point max is already reached
+	 * @param testmode testmode to use
+	 */
 	public Trainer(List<TDTableInfoElement> tables, int max_days, TestMode testmode){
 		currentElement = null;
 		this.allTables = tables;
@@ -56,6 +62,10 @@ public class Trainer {
 		this.max_date = (int) (cal.getTimeInMillis() / 1000);
 	}
 	
+	/**
+	 * Check wether the current vocable has a tip
+	 * @return true if a tip is available
+	 */
 	public boolean hasTip(){
 		if(currentElement != null)
 			return currentElement.getTip() != null;
@@ -69,27 +79,41 @@ public class Trainer {
 	public synchronized boolean isFinished() {
 		return finished;
 	}
-
+	
+	/**
+	 * Decrease points once, if maximum reached
+	 */
 	private void decreasePoints(){
-		logger.debug("A Points: {}",currentElement.getPoints());
 		if(!currentElement.showedHints){
 			currentElement.setPoints(currentElement.getPoints() >= Database.MAX_POINTS ? currentElement.getPoints() - DEDUCATION_WRON_ON_MAX : currentElement.getPoints());
 			currentElement.showedHints = true;
 		}
-		logger.debug("B Points: {}",currentElement.getPoints());
 	}
 	
+	/**
+	 * Get the solution, points counted
+	 * @return
+	 */
 	public String getSolution(){
 		decreasePoints();
 		return mode_element == TestMode.A_B ? currentElement.getWord_B() : currentElement.getWord_A();
 	}
 	
+	/**
+	 * Get tip, is counted in the points
+	 * @return
+	 */
 	public String getTip(){
 		decreasePoints();
 		hintsGiven++;
 		return currentElement.getTip();
 	}
 	
+	/**
+	 * Verify the input and rate outcome
+	 * @param input input to verify against the solution
+	 * @return true if input matches solution
+	 */
 	public boolean verifySolution(String input){
 		boolean solved = input.equals(mode_element == TestMode.A_B ? currentElement.getWord_B() : currentElement.getWord_A());
 		if(!solved){

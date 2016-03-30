@@ -4,11 +4,15 @@ VocableTrainer
 Simple vocable trainer in java.
 
 ### Features
-- A-B, B-A, AB random training
-- training based on the date a vocabulary was last trained,
-allowing to train only vocables unused since X days
-- using internal sqlite lib
+- create lists as A - B column
+- train in an A -> B, B -> A or random mode
+- train only with vocables not used since X days
+- stop training and safe your progress
+- training with multiple lists at once
+- using internal sqlite lib, take your lists with you on your usb stick or mail, everything in one file
 - lightweight runnable from linux/mac/windows
 
 ### Missing features
 - Import/export of lists
+- non repeating random selection of vocables
+- creating new lists based on selected ones in existing lists

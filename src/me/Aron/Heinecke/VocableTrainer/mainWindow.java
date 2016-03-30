@@ -68,6 +68,11 @@ import java.awt.Dimension;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 
+//TODO: replace table with layered pane
+/**
+ * Main application window
+ * @author Aron Heinecke
+ */
 public class mainWindow {
 	
 	private final Logger logger = LogManager.getLogger();

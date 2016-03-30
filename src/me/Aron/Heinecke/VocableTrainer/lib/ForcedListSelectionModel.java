@@ -11,6 +11,11 @@ package me.Aron.Heinecke.VocableTrainer.lib;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.ListSelectionModel;
 
+/**
+ * Custom list selection model enforcing single selection
+ * @author Aron Heinecke
+ *
+ */
 @SuppressWarnings("serial")
 public class ForcedListSelectionModel extends DefaultListSelectionModel {
 

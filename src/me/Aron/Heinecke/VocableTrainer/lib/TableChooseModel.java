@@ -18,7 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Custom TableModel for Patient Treatment JTable
+ * Custom TableModel for the list choose table
  * @author "Aron Heinecke"
  */
 @SuppressWarnings("serial")

@@ -13,9 +13,8 @@ import me.Aron.Heinecke.VocableTrainer.lib.TDTableElement;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
 
 /**
- * Data storage to stripe out variables
+ * Data storage to stripe out variables and allow for default initialization
  * @author Aron Heinecke
- *
  */
 public class ListData {
 	public TDTableInfoElement table;
