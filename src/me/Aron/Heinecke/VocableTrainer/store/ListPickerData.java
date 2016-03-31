@@ -11,7 +11,7 @@ package me.Aron.Heinecke.VocableTrainer.store;
 import java.util.ArrayList;
 
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
-import me.Aron.Heinecke.VocableTrainer.mainWindow.WINDOW_STATE;
+import me.Aron.Heinecke.VocableTrainer.BaseWindow.WINDOW_STATE;
 
 /**
  * Data object holding data for the list chooser

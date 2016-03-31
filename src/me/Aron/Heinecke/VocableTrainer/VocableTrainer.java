@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class VocableTrainer {
 	private final static Logger logger = LogManager.getLogger();
-	private final static String version = "0.1.1";
+	private final static String version = "0.1.2";
 	public static void main(String[] args){
 		logger.info("Starting up VocableTrainer version {}",version);
 		try {
@@ -41,7 +41,7 @@ public class VocableTrainer {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					new mainWindow(version);
+					new MainWindow(version);
 				} catch (Exception e) {
 					logger.error("Homescreen thread error \n{}", e);
 				}

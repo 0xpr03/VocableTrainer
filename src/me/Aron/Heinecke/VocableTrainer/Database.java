@@ -38,6 +38,8 @@ public class Database {
 	private static final Logger logger = LogManager.getLogger();
 	private static Connection connection = null;
 	
+	private static final Object LOCK = new Object();
+	
 	private static int TEMP_ID = 0;
 	
 	public static final int MAX_POINTS = 4;
@@ -86,7 +88,7 @@ public class Database {
 	private static final String SQL_UPDATE_TBL_DATE = "UPDATE `voc_tables` SET `last_used` = ? WHERE `name` = ?";
 	private static final String SQL_DELETE_TABLE_INFO = "DELETE FROM `voc_tables` WHERE `name` = ?";
 	
-	static void connect() throws SQLException{
+	public static void connect() throws SQLException{
 		String path = System.getProperty("user.home");
 		path += "/vocabletrainer";
 		new File(path).mkdirs();
@@ -111,7 +113,6 @@ public class Database {
 			ResultSet rs = stm.executeQuery(SQL_GET_TBL_VOC.replace("%table%", table.getName()));
 			List<TDTableElement> data = new ArrayList<TDTableElement>();
 			while(rs.next()){
-				logger.debug("next");
 				data.add(new TDTableElement(rs.getString(1), rs.getString(2), rs.getString(3), getDate(rs.getInt(4)), rs.getInt(5)));
 			}
 			rs.close();
@@ -252,7 +253,9 @@ public class Database {
 	}
 	
 	private static String getTempName(){
-		return prefix_TBL_TEMP+(++TEMP_ID);
+		synchronized(LOCK){
+			return prefix_TBL_TEMP+(++TEMP_ID);
+		}
 	}
 	
 	private static String getSQL_UPDATE_VOC(String table, String temp_table){
