@@ -1,3 +1,11 @@
+/* Copyright 2016 Aron Heinecke. See the COPYRIGHT
+ * file at the top-level directory of this distribution.
+ * 
+ * Licensed under the MIT license
+ * <LICENSE-MIT or http://opensource.org/licenses/MIT>.
+ * This file may not be copied, modified, or distributed
+ * except according to those terms.
+ */
 package me.Aron.Heinecke.VocableTrainer.test;
 
 import java.sql.SQLException;
@@ -36,7 +44,7 @@ public class dbFuzzer {
 		}
 		int processors = Runtime.getRuntime().availableProcessors();
 		ExecutorService executor = Executors.newFixedThreadPool(processors);
-		for (int x = 0; x < 9000; x++) {
+		for (int x = 0; x < 9999999; x++) {
 			Runnable worker = new MyRunnable(x);
 			executor.execute(worker);
 		}
@@ -59,7 +67,7 @@ public class dbFuzzer {
 		@Override
 		public void run() {
 			ArrayList<TDTableElement> list = new ArrayList<>();
-			for(int i = 0; i < 90000; i++){
+			for(int i = 0; i < 1; i++){
 				list.add(new TDTableElement(i+"a", i+"b", i+"c", new Date(), 0));
 			}
 			TDTableInfoElement table = new TDTableInfoElement("voc_FUZ_"+id,"FUZZING!``"+id,0,new Date(),"A","B");

@@ -412,7 +412,6 @@ public class Database {
 				}
 				rs_2.close();
 				stm_2.close();
-				logger.debug("rows: {}",size);
 				data.add(new TDTableInfoElement(rs.getString(1), rs.getString(2), size, getDate(rs.getInt(3)), rs.getString(4), rs.getString(5)));
 			}
 			rs.close();

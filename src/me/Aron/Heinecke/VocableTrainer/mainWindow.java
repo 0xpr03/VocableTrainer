@@ -6,7 +6,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingWorker;
 
-import me.Aron.Heinecke.VocableTrainer.BaseWindow.WINDOW_STATE;
 import me.Aron.Heinecke.VocableTrainer.lib.DBResult;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableElement;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
@@ -17,7 +16,6 @@ import me.Aron.Heinecke.VocableTrainer.lib.WaitLayerUI;
 /**
  * Main Window, extending BaseWindow to segregate some code chunks
  * @author Aron Heinecke
- *
  */
 final class MainWindow extends BaseWindow {
 
@@ -31,6 +29,10 @@ final class MainWindow extends BaseWindow {
 		new ChooseListWorker(layer, tableModel).execute();
 	}
 	
+	/**
+	 * Worker performing the list indexing needed by the list picker
+	 * @author Aron Heinecke
+	 */
 	class ChooseListWorker extends SwingWorker<DBResult<List<TDTableInfoElement>>, Object> {
 		private WaitLayerUI layer;
 		private TableChooseModel model;
@@ -59,6 +61,11 @@ final class MainWindow extends BaseWindow {
 		}
 	}
 	
+	/**
+	 * Worker performing the load job needed by the list editor
+	 * @author Aron Heinecke
+	 *
+	 */
 	class EditListLoadWorker extends SwingWorker<DBResult<List<TDTableElement>>, Object> {
 		private WaitLayerUI layer;
 		private TableListModel model;
@@ -99,6 +106,10 @@ final class MainWindow extends BaseWindow {
 		new EditListSaveWorker(listModel, table, isNewList, db_table, layer).execute();
 	}
 	
+	/**
+	 * Worker performing the save job needed by the list editor
+	 * @author Aron Heinecke
+	 */
 	class EditListSaveWorker extends SwingWorker<Integer, Object> {
 		private WaitLayerUI layer;
 		private TableListModel model;

@@ -28,7 +28,7 @@ import javax.swing.plaf.LayerUI;
 
 /**
  * LayerUI for waiting circle paintings
- * adopted from aterai
+ * adopted & fixed from aterai <terai.atsuhiro01@is.naist.jp>
  * @author Aron Heinecke
  *
  */

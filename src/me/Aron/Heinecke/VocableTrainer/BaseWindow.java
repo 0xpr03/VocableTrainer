@@ -20,7 +20,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Date;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
@@ -79,6 +78,7 @@ import java.awt.Font;
 public abstract class BaseWindow {
 	
 	private final Logger logger = LogManager.getLogger();
+	private final boolean IS_DEV = false; // disabling window builder crashing code on true
 	
 	public enum WINDOW_STATE {
 		START,LIST_EDIT,LIST_CHOOSE,TRAINER
@@ -269,9 +269,10 @@ public abstract class BaseWindow {
 		panel.add(btnRename);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		//TODO: position to un-crash the windowbuilder
-		panelListEdit.add(new JLayer<JComponent>(scrollPane,layer_editTable), "cell 0 1,grow");
-//		panelListEdit.add(scrollPane, "cell 0 1,grow");
+		if(IS_DEV)
+			panelListEdit.add(scrollPane, "cell 0 1,grow");
+		else
+			panelListEdit.add(new JLayer<JComponent>(scrollPane,layer_editTable), "cell 0 1,grow");
 		
 		listeditTable = new JTable(listEditModel);
 		listeditTable.setFillsViewportHeight(true);
@@ -412,9 +413,10 @@ public abstract class BaseWindow {
 		    public void actionPerformed(ActionEvent e)
 		    {
 		    	if(LISTEDITDATA.current_row + 1 >= listEditModel.getSize()){
-		    		addLIstEditRow();
+		    		addRow();
+		    	}else{
+		    		listeditTable.getSelectionModel().setSelectionInterval(LISTEDITDATA.current_row+1, LISTEDITDATA.current_row+1);
 		    	}
-		    	listeditTable.getSelectionModel().setSelectionInterval(LISTEDITDATA.current_row+1, LISTEDITDATA.current_row+1);
 		    	textEditVocable.requestFocus();
 		    }
 		});
@@ -436,7 +438,7 @@ public abstract class BaseWindow {
 		JButton btnDiscardChanges = new JButton("Discard Changes");
 		btnDiscardChanges.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int chosen = JOptionPane.showConfirmDialog(frame, "Do you really want to exit ?", "Exit to start", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null);
+				int chosen = JOptionPane.showConfirmDialog(frame, "Do you really want to discard all changes ?", "Exit to start", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null);
 				if(chosen == 0)
 					switchTab(WINDOW_STATE.START);
 			}
@@ -459,7 +461,7 @@ public abstract class BaseWindow {
 		JButton btnInsertRow = new JButton("Append Row");
 		btnInsertRow.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				addLIstEditRow();
+				addRow();
 				textEditVocable.requestFocus();
 			}
 		});
@@ -470,9 +472,11 @@ public abstract class BaseWindow {
 		panelChooseList.setLayout(new MigLayout("", "[grow]", "[168.00,grow][40px,baseline]"));
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
-		//TODO: marker to get windowbuilder working again
-		panelChooseList.add(new JLayer<JComponent>(scrollPane_1,layer_chooserTable), "cell 0 0,grow");
-//		panelChooseList.add(scrollPane_1, "cell 0 0,grow");
+		if(IS_DEV)
+			panelChooseList.add(scrollPane_1, "cell 0 0,grow");
+		else
+			panelChooseList.add(new JLayer<JComponent>(scrollPane_1,layer_chooserTable), "cell 0 0,grow");
+		
 		
 		chooseList = new JTable(listChooseModel);
 		chooseList.setSelectionModel(new ForcedListSelectionModel());
@@ -780,14 +784,24 @@ public abstract class BaseWindow {
 		this.texteditAnswer.setEditable(false);
 		this.texteditTip.setEditable(false);
 		this.btnDeleteRow.setEnabled(false);
+		if(listEditModel.getRowCount() == 0){
+			addRow();
+			textEditVocable.requestFocus(false);
+		}
 	}
 	
+	/*
+	 * Actualize column name in the list editor
+	 */
 	private void actualizeColName(){
 		listEditModel.setColumnNames(LISTEDITDATA.table.getColumn_a(), LISTEDITDATA.table.getColumn_b());
 		lblCol_a.setText(LISTEDITDATA.table.getColumn_a());
 		lblCol_b.setText(LISTEDITDATA.table.getColumn_b());
 	}
 	
+	/**
+	 * Show trainer tab
+	 */
 	private void showTRAINERTab(){
 		TRAINER = new Trainer(LISTPICKERDATA.getPicked(), LISTPICKERDATA.max_days, (TestMode) comboTrainerMode.getSelectedItem());
 		LISTPICKERDATA = new ListPickerData();
@@ -816,6 +830,9 @@ public abstract class BaseWindow {
 		}
 	}
 	
+	/**
+	 * Update list editor fields
+	 */
 	private void updateListEditFields(){
 		this.texteditTip.setText(LISTEDITDATA.current_element.getTip());
 		this.textEditVocable.setText(LISTEDITDATA.current_element.getWord_A());
@@ -826,10 +843,16 @@ public abstract class BaseWindow {
 		this.btnDeleteRow.setEnabled(true);
 	}
 	
+	/**
+	 * Update title of current list
+	 */
 	private void actualizeListEditTitle(){
 		this.lblListEditor.setText("Editor - "+LISTEDITDATA.table.getAlias());
 	}
 	
+	/**
+	 * End list selection window, check for sel. > 0
+	 */
 	private void finishChooseList(){
 		if(LISTPICKERDATA.isMulti_select()){
 			for(TDTableInfoElement elem : listChooseModel.getRowData()){
@@ -842,6 +865,9 @@ public abstract class BaseWindow {
 		switchTab(LISTPICKERDATA.getNext_tab());
 	}
 	
+	/**
+	 * Delete row in list editor
+	 */
 	private void deleteRow(){
 		if(this.listeditTable.getSelectedRow() > -1){
 			EDIT_ROW_CHANGE = true;
@@ -850,7 +876,10 @@ public abstract class BaseWindow {
 		}
 	}
 	
-	private void addLIstEditRow(){
+	/**
+	 * Add row in list editor
+	 */
+	private void addRow(){
 		listEditModel.add(new TDTableElement("", "", "", new Date(0), 0));
 		listeditTable.getSelectionModel().setSelectionInterval(listEditModel.getRowCount()-1, listEditModel.getRowCount()-1);
 	}
