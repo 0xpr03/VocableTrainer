@@ -48,6 +48,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableRowSorter;
 
 import org.apache.logging.log4j.LogManager;
@@ -69,6 +70,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.Font;
+import javax.swing.JRadioButton;
 
 //TODO: replace table with layered pane
 /**
@@ -81,7 +83,7 @@ public abstract class BaseWindow {
 	private final boolean IS_DEV = false; // disabling window builder crashing code on true
 	
 	public enum WINDOW_STATE {
-		START,LIST_EDIT,LIST_CHOOSE,TRAINER
+		START,LIST_EDIT,LIST_CHOOSE,TRAINER,TRAINING_SETTINGS
 	}
 
 	private JFrame frame;
@@ -114,7 +116,6 @@ public abstract class BaseWindow {
 	private JButton btnRenameTable_CL;
 	private JButton btnOkChooseList;
 	private JPanel panel_DaySpinner;
-	private JSpinner spinnerMaxDays;
 	private JButton btnStartTraining;
 	private JComboBox<TestMode> comboTrainerMode;
 	private JLabel lblCol_a;
@@ -122,6 +123,11 @@ public abstract class BaseWindow {
 	private JLabel lblTestMode;
 	private WaitLayerUI layer_chooserTable = new WaitLayerUI();
 	private WaitLayerUI layer_editTable = new WaitLayerUI();
+	private JTable table_1;
+	private JSpinner spinnerMaxDays;
+	private JRadioButton chckbxRepeatAllVocables;
+	private JRadioButton chckbxRefresh;
+	private JSpinner spinnerShowXTimes;
 
 	/**
 	 * Create the application.
@@ -194,7 +200,7 @@ public abstract class BaseWindow {
 		btnStartTraining.setMaximumSize(new Dimension(194, 46));
 		btnStartTraining.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				LISTPICKERDATA = new ListPickerData(true, WINDOW_STATE.TRAINER);
+				LISTPICKERDATA = new ListPickerData(true, WINDOW_STATE.TRAINING_SETTINGS);
 				switchTab(WINDOW_STATE.LIST_CHOOSE);
 			}
 		});
@@ -219,7 +225,7 @@ public abstract class BaseWindow {
 		
 		JPanel panelListEdit = new JPanel();
 		tabbedPane.addTab("", null, panelListEdit, null);
-		panelListEdit.setLayout(new MigLayout("", "[grow]", "[8.00][grow][bottom][bottom]"));
+		panelListEdit.setLayout(new MigLayout("", "[grow]", "[8.00][74.00,grow][86.00,bottom][bottom]"));
 		
 		JPanel panel = new JPanel();
 		panelListEdit.add(panel, "cell 0 0,grow");
@@ -544,10 +550,6 @@ public abstract class BaseWindow {
 		Component horizontalStrut_1 = Box.createHorizontalStrut(4);
 		panel_DaySpinner.add(horizontalStrut_1);
 		
-		spinnerMaxDays = new JSpinner();
-		spinnerMaxDays.setModel(new SpinnerNumberModel(new Integer(30), null, null, new Integer(1)));
-		panel_DaySpinner.add(spinnerMaxDays);
-		
 		Component horizontalStrut_2 = Box.createHorizontalStrut(5);
 		panel_DaySpinner.add(horizontalStrut_2);
 		
@@ -564,6 +566,76 @@ public abstract class BaseWindow {
 				finishChooseList();
 			}
 		});
+		
+		JPanel panelStartTraining = new JPanel();
+		tabbedPane.addTab("New tab", null, panelStartTraining, null);
+		panelStartTraining.setLayout(new MigLayout("", "[grow,leading]", "[][160.00,grow][grow][]"));
+		
+		JLabel lblStartTrainingInfo = new JLabel("Training Settings");
+		panelStartTraining.add(lblStartTrainingInfo, "cell 0 0,alignx center");
+		
+		JScrollPane scrollPane_4 = new JScrollPane();
+		panelStartTraining.add(scrollPane_4, "cell 0 1,grow");
+		
+		table_1 = new JTable();
+		scrollPane_4.setViewportView(table_1);
+		
+		JPanel panel_7 = new JPanel();
+		panelStartTraining.add(panel_7, "cell 0 2,grow");
+		panel_7.setLayout(new MigLayout("", "[][][41.00][]", "[][][]"));
+		
+		chckbxRepeatAllVocables = new JRadioButton("Repeat all vocables");
+		chckbxRepeatAllVocables.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				changeTrainingSettingsSwitch(true);
+			}
+		});
+		panel_7.add(chckbxRepeatAllVocables, "cell 0 0");
+		
+		chckbxRefresh = new JRadioButton("refresh");
+		chckbxRefresh.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				changeTrainingSettingsSwitch(false);
+			}
+		});
+		panel_7.add(chckbxRefresh, "cell 0 1");
+		
+		JLabel lblRepeatVocablesNot = new JLabel("repeat vocables not trained since");
+		panel_7.add(lblRepeatVocablesNot, "cell 1 1");
+		
+		spinnerMaxDays = new JSpinner();
+		spinnerMaxDays.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
+		panel_7.add(spinnerMaxDays, "cell 2 1,growx");
+		
+		JLabel lblDays_1 = new JLabel("days");
+		panel_7.add(lblDays_1, "cell 3 1");
+		
+		JLabel lblShowEveryVocable = new JLabel("Show every vocable at least");
+		panel_7.add(lblShowEveryVocable, "cell 0 2");
+		
+		spinnerShowXTimes = new JSpinner();
+		spinnerShowXTimes.setModel(new SpinnerNumberModel(new Integer(4), new Integer(1), null, new Integer(1)));
+		panel_7.add(spinnerShowXTimes, "flowx,cell 1 2");
+		
+		JLabel lblTimes = new JLabel("times");
+		panel_7.add(lblTimes, "cell 1 2");
+		
+		JButton btnStart = new JButton("Start");
+		panelStartTraining.add(btnStart, "flowx,cell 0 3");
+		
+		Component horizontalStrut = Box.createHorizontalStrut(20);
+		panelStartTraining.add(horizontalStrut, "cell 0 3");
+		
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				LISTPICKERDATA.cleanTableModel = false;
+				switchTab(WINDOW_STATE.LIST_CHOOSE);
+			}
+		});
+		panelStartTraining.add(btnCancel, "cell 0 3");
 		
 		JPanel panelTrain = new JPanel();
 		tabbedPane.addTab("New tab", null, panelTrain, null);
@@ -682,6 +754,9 @@ public abstract class BaseWindow {
 		case TRAINER:
 			showTRAINERTab();
 			break;
+		case TRAINING_SETTINGS:
+			showTRAINING_SETTINGSTab();
+			break;
 		default:
 			logger.error("Unknown tab state {}",state);
 			break;
@@ -695,9 +770,21 @@ public abstract class BaseWindow {
 	}
 	
 	/**
+	 * Called upon having selected all lists to be used for the training
+	 */
+	private void showTRAINING_SETTINGSTab(){
+		tabbedPane.setSelectedIndex(3);
+		chckbxRepeatAllVocables.setSelected(true);
+		changeTrainingSettingsSwitch(true);
+	}
+	
+	/**
 	 * Function called on list chooser display call
 	 */
 	private void showLIST_CHOOSETab(){
+		if (LISTPICKERDATA.cleanTableModel)
+		this.listChooseModel.clearElements();
+		
 		this.listChooseModel.setMulti_select(LISTPICKERDATA.isMulti_select());
 		if(chooseListMouseAdapter != null)
 			chooseList.removeMouseListener(chooseListMouseAdapter);
@@ -742,10 +829,12 @@ public abstract class BaseWindow {
 		lblTestMode.setVisible(LISTPICKERDATA.isMulti_select());
 		frame.getRootPane().setDefaultButton(btnOkChooseList);
 		tabbedPane.setSelectedIndex(2);
-		this.btnRenameTable_CL.setEnabled(false);
-		this.btnOkChooseList.setEnabled(false);
+		this.btnRenameTable_CL.setEnabled(LISTPICKERDATA.amount_chosen > 0);
+		this.btnOkChooseList.setEnabled(LISTPICKERDATA.amount_chosen > 0);
 		
-		listChooseLoader(layer_chooserTable, listChooseModel);
+		if (LISTPICKERDATA.cleanTableModel)
+			listChooseLoader(layer_chooserTable, listChooseModel);
+		
 	}
 	
 	protected abstract void listChooseLoader(WaitLayerUI layer, TableChooseModel tableModel);
@@ -863,6 +952,18 @@ public abstract class BaseWindow {
 			LISTPICKERDATA.max_days = (int) spinnerMaxDays.getValue();
 		}
 		switchTab(LISTPICKERDATA.getNext_tab());
+	}
+	
+	/**
+	 * Selection switcher for chckbxRepeatAllVocables & chckbxRefresh
+	 * 
+	 */
+	private void changeTrainingSettingsSwitch(boolean repeatChanged){
+		boolean	repeat = repeatChanged && chckbxRepeatAllVocables.isSelected();
+		chckbxRefresh.setSelected(!repeat);
+		chckbxRepeatAllVocables.setSelected(repeat);
+		spinnerMaxDays.setEnabled(!repeat);
+		
 	}
 	
 	/**

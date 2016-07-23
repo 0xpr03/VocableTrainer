@@ -27,6 +27,7 @@ public class ListPickerData {
 	boolean multi_select;
 	public int amount_chosen = 0;
 	public int max_days = -1;
+	public boolean cleanTableModel = true;
 	
 	/**
 	 * Creates a new instance

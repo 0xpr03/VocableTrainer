@@ -28,11 +28,9 @@ public class TableChooseModel extends AbstractTableModel {
 	private boolean multi_select = false;
     /**
      * Update multi select
-     * This also clears the whole table
 	 * @param multi_select the multi_select to set
 	 */
 	public synchronized void setMulti_select(boolean multi_select) {
-		this.clearElements();
 		this.multi_select = multi_select;
 		super.fireTableDataChanged();
 	}
