@@ -35,7 +35,7 @@ public class VocableTrainer {
 			Database.connect();
 			registerExitFunction();
 		} catch (SQLException e1) {
-			logger.error("Error on db init:\n{}",e1);
+			logger.error("Error on db {} init:\n{}",Database.getDBVersion(),e1);
 		}
 		
 		EventQueue.invokeLater(new Runnable() {

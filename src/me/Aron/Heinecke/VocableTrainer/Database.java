@@ -10,20 +10,21 @@ package me.Aron.Heinecke.VocableTrainer;
 
 import java.io.File;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.sqlite.SQLiteConfig;
 
 import me.Aron.Heinecke.VocableTrainer.lib.DBResult;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableElement;
@@ -37,7 +38,8 @@ public class Database {
 	
 	private static final Logger logger = LogManager.getLogger();
 	private static Connection connection = null;
-	
+	private static final String version = "1.1";
+	// 這是一份非常簡單的說明書
 	private static final Object LOCK = new Object();
 	
 	private static int TEMP_ID = 0;
@@ -93,7 +95,10 @@ public class Database {
 		path += "/vocabletrainer";
 		new File(path).mkdirs();
 		path += "/db.sqlite";
-		connection = DriverManager.getConnection("jdbc:sqlite:"+path);
+		SQLiteConfig config = new SQLiteConfig();
+		config.setEncoding(SQLiteConfig.Encoding.UTF8);
+		connection = DriverManager.getConnection("jdbc:sqlite:"+path, config.toProperties());
+		logger.debug("DB versionv {} SQLite {}", getDBVersion(), getSQLiteVersion());
 		runInit();
 	}
 	
@@ -445,8 +450,22 @@ public class Database {
 		}
 	}
 	
+	public static String getSQLiteVersion(){
+		String res = "Error";
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT sqlite_version() as version");
+			rs.next();
+			res = rs.getString("version");
+		} catch (SQLException e) {
+			logger.error("Unable to retrieve SQLite version: {}",e);
+		}
+		return res;
+	}
 	
-	
+	public static String getDBVersion(){
+		return version;
+	}
 	
 	public static void shutdown(){
 		try {
