@@ -64,6 +64,7 @@ import me.Aron.Heinecke.VocableTrainer.lib.TableListModel;
 import me.Aron.Heinecke.VocableTrainer.lib.WaitLayerUI;
 import me.Aron.Heinecke.VocableTrainer.store.ListData;
 import me.Aron.Heinecke.VocableTrainer.store.ListPickerData;
+import me.Aron.Heinecke.VocableTrainer.store.TrainerSettings;
 import net.miginfocom.swing.MigLayout;
 import java.awt.Dimension;
 import javax.swing.JComboBox;
@@ -92,7 +93,7 @@ public abstract class BaseWindow {
 	private JTable chooseList;
 	private JTabbedPane tabbedPane;
 	private JMenuBar menuBar;
-	private JTextField vocInput;
+	JTextField vocInput;
 	private JButton btnResolve;
 	private JButton btnShowTip;
 	private JButton btnVerify;
@@ -128,6 +129,7 @@ public abstract class BaseWindow {
 	private JRadioButton chckbxRepeatAllVocables;
 	private JRadioButton chckbxRefresh;
 	private JSpinner spinnerShowXTimes;
+	private TrainerSettings SETTINGS_TRAINER;
 
 	/**
 	 * Create the application.
@@ -534,10 +536,6 @@ public abstract class BaseWindow {
 		lblTestMode = new JLabel("Test mode:");
 		panel_5.add(lblTestMode);
 		
-		comboTrainerMode = new JComboBox<TestMode>();
-		comboTrainerMode.setModel(new DefaultComboBoxModel<TestMode>(new TestMode[] {TestMode.A_B,TestMode.B_A,TestMode.AB}));
-		panel_5.add(comboTrainerMode);
-		
 		panel_DaySpinner = new JPanel();
 		panel_5.add(panel_DaySpinner);
 		FlowLayout fl_panel_DaySpinner = (FlowLayout) panel_DaySpinner.getLayout();
@@ -582,7 +580,7 @@ public abstract class BaseWindow {
 		
 		JPanel panel_7 = new JPanel();
 		panelStartTraining.add(panel_7, "cell 0 2,grow");
-		panel_7.setLayout(new MigLayout("", "[][][41.00][]", "[][][]"));
+		panel_7.setLayout(new MigLayout("", "[][][41.00][]", "[][][][]"));
 		
 		chckbxRepeatAllVocables = new JRadioButton("Repeat all vocables");
 		chckbxRepeatAllVocables.addActionListener(new ActionListener() {
@@ -619,23 +617,34 @@ public abstract class BaseWindow {
 		spinnerShowXTimes.setModel(new SpinnerNumberModel(new Integer(4), new Integer(1), null, new Integer(1)));
 		panel_7.add(spinnerShowXTimes, "flowx,cell 1 2");
 		
+		comboTrainerMode = new JComboBox<TestMode>();
+		comboTrainerMode.setModel(new DefaultComboBoxModel<TestMode>(new TestMode[] {TestMode.A_B,TestMode.B_A,TestMode.AB}));
+		panel_7.add(new JLabel("Test mode "), "cell 0 3");
+		panel_7.add(comboTrainerMode, "cell 1 3");
+		
 		JLabel lblTimes = new JLabel("times");
 		panel_7.add(lblTimes, "cell 1 2");
 		
 		JButton btnStart = new JButton("Start");
+		btnStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SETTINGS_TRAINER = new TrainerSettings(chckbxRepeatAllVocables.isSelected(),(int) spinnerMaxDays.getValue(),(int) spinnerShowXTimes.getValue());
+				switchTab(WINDOW_STATE.TRAINER);
+			}
+		});
 		panelStartTraining.add(btnStart, "flowx,cell 0 3");
 		
 		Component horizontalStrut = Box.createHorizontalStrut(20);
 		panelStartTraining.add(horizontalStrut, "cell 0 3");
 		
-		JButton btnCancel = new JButton("Cancel");
-		btnCancel.addActionListener(new ActionListener() {
+		JButton btnCancelTrainingSettings = new JButton("Cancel");
+		btnCancelTrainingSettings.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				LISTPICKERDATA.cleanTableModel = false;
 				switchTab(WINDOW_STATE.LIST_CHOOSE);
 			}
 		});
-		panelStartTraining.add(btnCancel, "cell 0 3");
+		panelStartTraining.add(btnCancelTrainingSettings, "cell 0 3");
 		
 		JPanel panelTrain = new JPanel();
 		tabbedPane.addTab("New tab", null, panelTrain, null);
@@ -674,7 +683,7 @@ public abstract class BaseWindow {
 		btnVerify.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(TRAINER.verifySolution(vocInput.getText())){
-					resetTrainerForm();
+					resetTrainerForm(true);
 				}else{
 					vocInput.setBackground(new Color(255, 150, 115));
 				}
@@ -892,30 +901,52 @@ public abstract class BaseWindow {
 	 * Show trainer tab
 	 */
 	private void showTRAINERTab(){
-		TRAINER = new Trainer(LISTPICKERDATA.getPicked(), LISTPICKERDATA.max_days, (TestMode) comboTrainerMode.getSelectedItem());
+		TRAINER = new Trainer(LISTPICKERDATA.getPicked(), SETTINGS_TRAINER, (TestMode) comboTrainerMode.getSelectedItem());
 		LISTPICKERDATA = new ListPickerData();
-		resetTrainerForm();
-		tabbedPane.setSelectedIndex(3);
+		resetTrainerForm(false);
+		setTrainerEnables(false);
+		tabbedPane.setSelectedIndex(4);
+		this.vocable_showed.setText("Initializing, please wait..");
+		trainerInit(TRAINER);
+	}
+	
+	protected void setTrainerEnables(boolean enable){
+		this.vocInput.setEnabled(enable);
+		this.vocable_showed.setEnabled(enable);
+		this.btnVerify.setEnabled(enable);
+		this.btnShowTip.setEnabled(enable);
+		this.btnResolve.setEnabled(enable);
+	}
+	
+	public void trainerInputRequestInput(){
+		logger.entry();
+		this.vocInput.setEnabled(true);
 		this.vocInput.requestFocus();
 	}
 	
 	/**
 	 * Reset trainer form AND show new vocable
 	 */
-	private void resetTrainerForm(){
+	public void resetTrainerForm(boolean requestVocable){
 		frame.getRootPane().setDefaultButton(this.btnVerify);
 		this.vocInput.setText("");
-		String vocable = TRAINER.getNewVocable();
+		String vocable;
+		if (requestVocable)
+			vocable = TRAINER.getNewVocable();
+		else
+			vocable = null;
 		vocInput.setBackground(Color.WHITE);
 		this.btnShowTip.setEnabled(TRAINER.hasTip());
 		this.vocInput.setEditable(vocable != null);
 		this.btnVerify.setEnabled(vocable != null);
 		this.btnResolve.setEnabled(vocable != null);
-		if(vocable == null){
-			this.vocable_showed.setText("FINISHED !\nStats:\n"+TRAINER.getStats());
-		}else{
-			this.vocable_showed.setText(vocable);
-			this.vocInput.requestFocus();
+		if (requestVocable){
+			if(vocable == null){
+				this.vocable_showed.setText("FINISHED !\nStats:\n"+TRAINER.getStats());
+			}else{
+				this.vocable_showed.setText(vocable);
+				this.vocInput.requestFocus();
+			}
 		}
 	}
 	
@@ -994,6 +1025,12 @@ public abstract class BaseWindow {
 	 * @param listModel 
 	 */
 	protected abstract void listSaveAction(TableListModel listModel, JTable table, boolean isNewList, TDTableInfoElement db_table, WaitLayerUI layer);
+	
+	/**
+	 * Called on trainer init for time consuming jobs
+	 * @param trainer trainer to be used
+	 */
+	protected abstract void trainerInit(Trainer trainer);
 	
 	/**
 	 * Exit and show confirm dialog for some specific tabs

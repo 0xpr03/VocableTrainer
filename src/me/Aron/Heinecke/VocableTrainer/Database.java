@@ -44,8 +44,6 @@ public class Database {
 	
 	private static int TEMP_ID = 0;
 	
-	public static final int MAX_POINTS = 4;
-	
 	private static final String SQL_TBL_VOC = "CREATE [TEMP] TABLE IF NOT EXISTS `%table%` ( "+
 	"`word_a` TEXT NOT NULL, "+
 	"`word_b` TEXT NOT NULL, "+
@@ -58,7 +56,6 @@ public class Database {
 	+"`name` TEXT, "
 	+"`alias` TEXT, "
 	+"`last_used` INTEGER, "
-	+"`max_points` INTEGER, " // if this should ever change we can grant backwards compatibility
 	+"`col_a` TEXT, "
 	+"`col_b` TEXT, "
 	+"PRIMARY KEY(name) "
@@ -73,22 +70,25 @@ public class Database {
 	private static final String SQL_RESET_CHANGED = "UPDATE `%temp_tbl%` SET `points` = 0, `last_used` = 0 "
 	+"WHERE NOT EXISTS (SELECT 1 FROM `%table%` as tbl2 "
 	+"WHERE `%temp_tbl%`.word_a = tbl2.word_a AND `%temp_tbl%`.word_b = tbl2.word_b );";
-	public static final String prefix_TBL_VOC = "voc_";
-	private static final String prefix_TBL_TEMP = "temp_";
+	public static final String PREFIX_TBL_VOC = "voc_";
+	private static final String PREFIX_TBL_TEMP = "temp_";
 	//private static final String SQL_LIST_TBL_VOC = "SELECT `tbl_name` FROM sqlite_master WHERE type='table' AND `tbl_name` LIKE \"%prefix%\";";
 	private static final String SQL_GET_ROW_COUNT = "SELECT COUNT(*) as rows FROM `%table%`;";
 	private static final String SQL_GET_TBL_VOC = "SELECT `word_a`,`word_b`,`tip`,`last_used`,`points` FROM `%table%` WHERE 1";
 	private static final String SQL_UPDATE_VOC = "UPDATE `%table%` SET `points` = ?, `last_used` = ? WHERE `word_a` = ? AND `word_b` = ?;";
+	private static final String SQL_UPDATE_RESET_VOC_POINTS = "UPDATE `%table%` SET `points` = 0 WHERE 1;";
 	private static final String SQL_GET_VOCABLE_RND = "SELECT `word_a`,`word_b`,`tip`,`last_used`,`points` FROM `%table%` WHERE last_used < ? OR points < ? ORDER BY RANDOM() LIMIT 1;";
+	private static final String SQL_GET_VOCABLE_RND_FINISHED = "SELECT `word_a`,`word_b`,`tip`,`last_used`,`points` FROM `%table%` WHERE last_used >= ? AND points >= ? ORDER BY RANDOM() LIMIT 1;";
 	private static final String SQL_INSERT_TEMP_VOC = "INSERT INTO `%table%` (`word_a`,`word_b`,`tip`,`points`,`last_used`) VALUES (?,?,?,?,?) ";
 	private static final String SQL_UPDATE_TBL_INFO = "UPDATE `voc_tables` SET `alias` = ?,`col_a` = ?,`col_b` = ? WHERE name = ? ;";
 	private static final String SQL_GET_TABLE_ALIAS = "SELECT `alias` FROM `voc_tables` WHERE name = ?";
 	private static final String SQL_GET_TABLES = "SELECT `name`,`alias`,`last_used`,`col_a`,`col_b` FROM `voc_tables` WHERE 1";
 	private static final String SQL_GET_NEW_NAME = "SELECT COUNT(*) FROM voc_tables;";
-	private static final String SQL_INSERT_TBL_NAME = "INSERT INTO `voc_tables` (`name`,`alias`,`last_used`,`max_points`,`col_a`,`col_b`) VALUES (?,?,?,"+MAX_POINTS+",?,?);";
+	private static final String SQL_INSERT_TBL_NAME = "INSERT INTO `voc_tables` (`name`,`alias`,`last_used`,`col_a`,`col_b`) VALUES (?,?,?,?,?);";
 	private static final String SQL_DELETE_TBL = "DROP TABLE `%table%`";
 	private static final String SQL_UPDATE_TBL_DATE = "UPDATE `voc_tables` SET `last_used` = ? WHERE `name` = ?";
 	private static final String SQL_DELETE_TABLE_INFO = "DELETE FROM `voc_tables` WHERE `name` = ?";
+	private static final String SQL_GET_TRAINING_AMOUNT_VOCS = "SELECT COUNT (*) as amount FROM `%table%` WHERE `last_used` < ? OR points < ?";
 	
 	public static void connect() throws SQLException{
 		String path = System.getProperty("user.home");
@@ -240,7 +240,7 @@ public class Database {
 			ResultSet rs = stm.executeQuery(SQL_GET_NEW_NAME);
 			DBResult<String> dbe;
 			if(rs.next()){
-				dbe = new DBResult<String>(prefix_TBL_VOC+rs.getInt(1));
+				dbe = new DBResult<String>(PREFIX_TBL_VOC+rs.getInt(1));
 			}else{
 				dbe = new DBResult<String>(new Exception("NO value!"));
 			}
@@ -259,7 +259,7 @@ public class Database {
 	
 	private static String getTempName(){
 		synchronized(LOCK){
-			return prefix_TBL_TEMP+(++TEMP_ID);
+			return PREFIX_TBL_TEMP+(++TEMP_ID);
 		}
 	}
 	
@@ -382,9 +382,19 @@ public class Database {
 		}
 	}
 	
-	public static DBResult<TDTableElement> getRandomVocable(TDTableInfoElement table, int max_date_sec, int max_points){
+	/**
+	 * Get random vocable matching it's criteria
+	 * @param table
+	 * @param max_date_sec max date for voc
+	 * @param max_points max points for voc
+	 * @param GET_REVERSE_MATCH if set to true, a vocable with >= max points and matching date will be searched
+	 * @return DBResult of vocable, nul value if nothing was found
+	 */
+	public static DBResult<TDTableElement> getRandomVocable(TDTableInfoElement table, int max_date_sec, int max_points, boolean GET_REVERSE_MATCH){
 		try{
-			PreparedStatement stm = connection.prepareStatement(SQL_GET_VOCABLE_RND.replace("%table%", table.getName()));
+			String sql = GET_REVERSE_MATCH ? SQL_GET_VOCABLE_RND_FINISHED : SQL_GET_VOCABLE_RND;
+
+			PreparedStatement stm = connection.prepareStatement(sql.replace("%table%", table.getName()));
 			stm.setInt(1, max_date_sec);
 			stm.setInt(2, max_points);
 			ResultSet rs = stm.executeQuery();
@@ -397,11 +407,46 @@ public class Database {
 			rs.close();
 			stm.close();
 			return dbe;
-		} catch(Exception e){
+		} catch(Exception e) {
 			logger.error("{}",e);
 			return new DBResult<>(e);
 		}
 	}
+	
+	public static DBResult<Integer> getTrainingVocableAmount(List<TDTableInfoElement> tables, int max_date_sec, int max_points) {
+		try{
+			int amount = 0;
+			for (TDTableInfoElement table : tables ){
+				PreparedStatement stm = connection.prepareStatement(SQL_GET_TRAINING_AMOUNT_VOCS.replace("%table%", table.getName()));
+				stm.setInt(1, max_date_sec);
+				stm.setInt(2, max_points);
+				ResultSet rs = stm.executeQuery();
+				rs.next();
+				amount += rs.getInt("amount");
+				rs.close();
+				stm.close();
+			}
+			return new DBResult<>(amount);
+		} catch(Exception e) {
+			logger.error("{}", e);
+			return new DBResult<>(e);
+		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static DBResult resetVocablePoints(List<TDTableInfoElement> tables) {
+		try{
+			Statement stm = connection.createStatement();
+			for (TDTableInfoElement table : tables ){
+				stm.addBatch(SQL_UPDATE_RESET_VOC_POINTS.replace("%table%", table.getName()));
+			}
+			stm.executeBatch();
+			return new DBResult();
+		} catch(Exception e) {
+			logger.error("{}", e);
+			return new DBResult(e);
+		}
+	}	
 	
 	public static DBResult<List<TDTableInfoElement>> getTables(){
 		try{

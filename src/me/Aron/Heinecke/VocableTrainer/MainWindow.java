@@ -61,6 +61,24 @@ final class MainWindow extends BaseWindow {
 		}
 	}
 	
+	class TrainerInitWorker extends SwingWorker<Object, Object> {
+		Trainer trainer;
+		public TrainerInitWorker(Trainer trainer){
+			this.trainer = trainer;
+		}
+		@Override
+		public Object doInBackground(){
+			trainer.initTimeConsuming();
+			return null;
+		}
+		
+		@Override
+		protected void done(){
+			resetTrainerForm(true);
+			trainerInputRequestInput();
+		}
+	}
+	
 	/**
 	 * Worker performing the load job needed by the list editor
 	 * @author Aron Heinecke
@@ -104,6 +122,11 @@ final class MainWindow extends BaseWindow {
 	@Override
 	protected void listSaveAction(TableListModel listModel, JTable table, boolean isNewList,TDTableInfoElement db_table, WaitLayerUI layer) {
 		new EditListSaveWorker(listModel, table, isNewList, db_table, layer).execute();
+	}
+	
+	@Override
+	protected void trainerInit(Trainer trainer){
+		new TrainerInitWorker(trainer).execute();
 	}
 	
 	/**

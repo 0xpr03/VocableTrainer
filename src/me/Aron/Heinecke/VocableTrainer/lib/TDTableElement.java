@@ -29,6 +29,17 @@ public class TDTableElement {
 	}
 	
 	/**
+	 * Compare this elemnt with another<br>
+	 * This Function only compares word_a and word_b as these are
+	 * the key indeizes in the DB, thus the uniques
+	 * @param elem
+	 * @return true if both match
+	 */
+	public boolean equals(TDTableElement elem){
+		return this.word_a.equals(elem.getWord_A()) && this.word_b.equals(elem.getWord_B());
+	}
+	
+	/**
 	 * @return the date
 	 */
 	public synchronized Date getDate() {
