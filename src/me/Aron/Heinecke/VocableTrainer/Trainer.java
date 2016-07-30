@@ -29,9 +29,10 @@ import me.Aron.Heinecke.VocableTrainer.store.TrainerSettings;
 public class Trainer {
 	private List<TDTableInfoElement> allTables;
 	private List<TDTableInfoElement> usableTables;
+	private final int SECONDS_MS = 1000;
 	private Logger logger = LogManager.getLogger();
 	private TDTableElement currentElement;
-	private int max_date;
+	private long max_date;
 	private static final int DEDUCATION_WRONG_ON_MAX = 2;
 	private static final int MIN_POINTS = 0;
 	private TestMode testmode;
@@ -63,9 +64,12 @@ public class Trainer {
 		this.usableTables = new ArrayList<>(tables);
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
-		cal.add(Calendar.DATE, -settings.getRefreshOlderThan());
+		if (!settings.isRepeatAll()) {
+			cal.add(Calendar.DATE, -settings.getRefreshOlderThan());
+		}
 		this.testmode = testmode;
-		this.max_date = (int) (cal.getTimeInMillis() / 1000);
+		this.max_date = ( (long)( cal.getTimeInMillis() / SECONDS_MS) );
+		logger.debug("Date: {} time: {}",cal.getTimeInMillis(), max_date);
 		this.settings = settings;
 	}
 	
@@ -75,7 +79,7 @@ public class Trainer {
 	public void initTimeConsuming(){
 		logger.entry();
 		{
-			DBResult<?> result = Database.resetVocablePoints(allTables);
+			DBResult<?> result = Database.resetVocablePoints(allTables,max_date);
 			if (result.isError){
 				Database.showErrorDialog("Error on DB voc amoutn retrieval ", result, "DB Error");
 			}
@@ -231,6 +235,7 @@ public class Trainer {
 			showed_finished++;
 		
 		if(currentElement == null && !usableTables.isEmpty()){
+			logger.error("No current element but usable tables is still not empty!");
 			return "Error";
 		}else{
 			questioned++;
