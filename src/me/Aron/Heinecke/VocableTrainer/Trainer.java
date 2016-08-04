@@ -35,7 +35,6 @@ public class Trainer {
 	private long max_date;
 	private static final int DEDUCATION_WRONG_ON_MAX = 2;
 	private static final int MIN_POINTS = 0;
-	private TestMode testmode;
 	private TestMode mode_element;
 	private boolean finished = false;
 	private int amountFinished = 0;
@@ -56,9 +55,8 @@ public class Trainer {
 	 * Create a new Trainer object
 	 * @param tables list of tables which should be used
 	 * @param settings Trainer settings
-	 * @param testmode testmode to use
 	 */
-	public Trainer(List<TDTableInfoElement> tables, TrainerSettings settings, TestMode testmode){
+	public Trainer(List<TDTableInfoElement> tables, TrainerSettings settings){
 		currentElement = null;
 		this.allTables = tables;
 		this.usableTables = new ArrayList<>(tables);
@@ -67,7 +65,6 @@ public class Trainer {
 		if (!settings.isRepeatAll()) {
 			cal.add(Calendar.DATE, -settings.getRefreshOlderThan());
 		}
-		this.testmode = testmode;
 		this.max_date = ( (long)( cal.getTimeInMillis() / SECONDS_MS) );
 		logger.debug("Date: {} time: {}",cal.getTimeInMillis(), max_date);
 		this.settings = settings;
@@ -240,11 +237,11 @@ public class Trainer {
 		}else{
 			questioned++;
 			if(currentElement != null){
-				if(testmode == TestMode.AB){
+				if(settings.getTestMode() == TestMode.AB){
 					Random rnd = new Random();
 					mode_element = rnd.nextDouble() > 0.5 ? TestMode.A_B : TestMode.B_A;
 				}else{
-					mode_element = testmode;
+					mode_element = settings.getTestMode();
 				}
 				switch(mode_element){
 				case A_B:

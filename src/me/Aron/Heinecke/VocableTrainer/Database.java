@@ -113,7 +113,7 @@ public class Database {
 		}
 	}
 	
-	static DBResult<List<TDTableElement>> getVocs(TDTableInfoElement table){
+	public static DBResult<List<TDTableElement>> getVocs(TDTableInfoElement table){
 		try{
 			Statement stm = connection.createStatement();
 			ResultSet rs = stm.executeQuery(SQL_GET_TBL_VOC.replace("%table%", table.getName()));
@@ -163,12 +163,12 @@ public class Database {
 	}
 	
 	private static Date getDate(long time){
-		logger.debug("Retrieved Date: {}",getDateSec(new Date(time * SECONDS_MS)));
+		//logger.debug("Retrieved Date: {}",getDateSec(new Date(time * SECONDS_MS)));
 		return new Date(time * SECONDS_MS);
 	}
 	
 	private static long getDateSec(Date date){
-		logger.debug("Date: {}", date.getTime() / SECONDS_MS);
+		//logger.debug("Date: {}", date.getTime() / SECONDS_MS);
 		return date.getTime() / SECONDS_MS;
 	}
 	
