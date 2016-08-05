@@ -11,7 +11,7 @@ package me.Aron.Heinecke.VocableTrainer.store;
 import java.util.ArrayList;
 
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
-import me.Aron.Heinecke.VocableTrainer.BaseWindow.WINDOW_STATE;
+import me.Aron.Heinecke.VocableTrainer.gui.PanelController.WINDOW_STATE;
 
 /**
  * Data object holding data for the list chooser
@@ -26,7 +26,6 @@ public class ListPickerData {
 	ArrayList<TDTableInfoElement> picked;
 	boolean multi_select;
 	public int amount_chosen = 0;
-	public int max_days = -1;
 	public boolean cleanTableModel = true;
 	
 	/**
@@ -66,6 +65,7 @@ public class ListPickerData {
 	 */
 	public synchronized void setPicked(TDTableInfoElement picked) {
 		this.picked.clear();
+		this.amount_chosen = 1;
 		this.picked.add(picked);
 	}
 	

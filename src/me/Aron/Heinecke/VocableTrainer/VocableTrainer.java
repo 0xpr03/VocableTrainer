@@ -43,7 +43,7 @@ public class VocableTrainer {
 				try {
 					new MainWindow(version);
 				} catch (Exception e) {
-					logger.error("Homescreen thread error \n{}", e);
+					logger.fatal("Error in the Homescreen \n{}", e);
 				}
 			}
 		});
