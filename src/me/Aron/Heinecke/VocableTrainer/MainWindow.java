@@ -9,6 +9,8 @@
 package me.Aron.Heinecke.VocableTrainer;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -32,6 +34,7 @@ import me.Aron.Heinecke.VocableTrainer.gui.JTrainerPanel;
 import me.Aron.Heinecke.VocableTrainer.gui.JTrainingSettingsPanel;
 import me.Aron.Heinecke.VocableTrainer.gui.PanelController;
 import me.Aron.Heinecke.VocableTrainer.gui.PanelController.WINDOW_STATE;
+import me.Aron.Heinecke.VocableTrainer.lib.DBResult;
 
 /**
  * Main application window
@@ -52,6 +55,14 @@ public class MainWindow {
 	public final String SETTINGS_FONT_EDITOR = "font_editor";
 	public final String SETTINGS_FONT_TRAINER = "font_trainer";
 	
+	
+	// consts
+	private final String K_WINDOW_SIZE_HEIGHT = "window_size_height";
+	private final String K_WINDOW_SIZE_WIDTH = "window_size_width";
+	private final String K_WINDOW_STATE = "window_state";
+	private final String K_WINDOW_POS_X = "window_pos_x";
+	private final String K_WINDOW_POS_Y = "window_pos_y";
+	
 	private PanelController panelcontroller;
 
 	/**
@@ -63,15 +74,18 @@ public class MainWindow {
 		this.panelcontroller = new PanelController(this);
 		switchTab(WINDOW_STATE.START, false);
 		frame.pack();
+		loadWindowSettings();
 		this.frame.setVisible(true);
 	}
-
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("VocableTrainer - "+version);
+		frame.setMinimumSize(new Dimension(500, 450));
+		frame.setPreferredSize(new Dimension(800,430));
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
@@ -79,7 +93,7 @@ public class MainWindow {
 				exit();
 			}
 		});
-		frame.setBounds(100, 100, 625, 300);
+		frame.setBounds(100, 100, 366, 274);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
 		menuBar = new JMenuBar();
@@ -87,6 +101,14 @@ public class MainWindow {
 		
 		JMenu mnMenu = new JMenu("Menu");
 		menuBar.add(mnMenu);
+		
+		JMenuItem mntmSettings = new JMenuItem("Settings");
+		mnMenu.add(mntmSettings);
+		mntmSettings.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				panelcontroller.changeWindow(WINDOW_STATE.SETTINGS);
+			}
+		});
 		
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		mnMenu.add(mntmExit);
@@ -198,5 +220,41 @@ public class MainWindow {
 			frame.getContentPane().add(CURRENT_TAB_PANEL);
 			frame.validate();
 			frame.repaint();
+	}
+	
+	/**
+	 * Load window size from preferences
+	 */
+	private void loadWindowSettings(){
+		DBResult<String> rs_height = Database.getSettingsValue(K_WINDOW_SIZE_HEIGHT);
+		DBResult<String> rs_width = Database.getSettingsValue(K_WINDOW_SIZE_WIDTH);
+		if(rs_height.hasValue() && rs_width.hasValue()){
+			frame.setSize(Integer.valueOf(rs_width.value), Integer.valueOf(rs_height.value));
+		}else{
+			logger.debug("No stored window size.");
+		}
+		DBResult<String> rs_state = Database.getSettingsValue(K_WINDOW_STATE);
+		if(rs_state.hasValue()){
+			frame.setState(Integer.valueOf(rs_state.value));
+		}
+		DBResult<String> rs_posX = Database.getSettingsValue(K_WINDOW_POS_X);
+		DBResult<String> rs_posY = Database.getSettingsValue(K_WINDOW_POS_Y);
+		if(rs_posX.hasValue() && rs_posY.hasValue()){
+			frame.setLocation(Integer.valueOf(rs_posX.value), Integer.valueOf(rs_posY.value));
+		}
+	}
+	
+	/**
+	 * Save window size to preferences
+	 */
+	private void saveWindowSettings(){
+		logger.entry();
+		Dimension wDim = frame.getSize();
+		Point wP = frame.getLocationOnScreen();
+		Database.setSettingsValue(K_WINDOW_SIZE_WIDTH, String.valueOf(wDim.width));
+		Database.setSettingsValue(K_WINDOW_SIZE_HEIGHT, String.valueOf(wDim.height));
+		Database.setSettingsValue(K_WINDOW_STATE, String.valueOf(frame.getState()));
+		Database.setSettingsValue(K_WINDOW_POS_X, String.valueOf(wP.x));
+		Database.setSettingsValue(K_WINDOW_POS_Y, String.valueOf(wP.y));
 	}
 }
