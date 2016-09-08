@@ -31,4 +31,15 @@ public class DBResult<T> {
 		error = e;
 		isError = true;
 	}
+	
+	/**
+	 * Check wether a value is available<br>
+	 * Does not check wether an error is stored, thus
+	 * if an error and an error is stored, this will return true.
+	 * @return
+	 */
+	public boolean hasValue(){
+		return value != null;
+	}
+	
 }

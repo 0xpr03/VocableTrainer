@@ -10,7 +10,6 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayer;
@@ -22,6 +21,8 @@ import javax.swing.SwingWorker;
 
 import me.Aron.Heinecke.VocableTrainer.Database;
 import me.Aron.Heinecke.VocableTrainer.gui.PanelController.WINDOW_STATE;
+import me.Aron.Heinecke.VocableTrainer.lib.CButton;
+import me.Aron.Heinecke.VocableTrainer.lib.CLabel;
 import me.Aron.Heinecke.VocableTrainer.lib.DBResult;
 import me.Aron.Heinecke.VocableTrainer.lib.ForcedListSelectionModel;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
@@ -39,8 +40,8 @@ public class JListChoosePanel extends JPanelBase {
 	
 	private static final long serialVersionUID = 3452428071933099759L;
 	private JTable chooseList;
-	private JButton btnOkChooseList;
-	private JButton btnRenameTable_CL;
+	private CButton btnOkChooseList;
+	private CButton btnRenameTable_CL;
 	private JLabel lblTestMode;
 	private JPanel panel_DaySpinner;
 	private WaitLayerUI layer_chooserTable = new WaitLayerUI();
@@ -68,6 +69,7 @@ public class JListChoosePanel extends JPanelBase {
 		chooseList = new JTable(listChooseModel);
 		chooseList.setSelectionModel(new ForcedListSelectionModel());
 		scrollPane_1.setViewportView(chooseList);
+		chooseList.setFont(getEditorFont());
 		
 		JPanel panel_6 = new JPanel();
 		panel_6.setAlignmentY(Component.TOP_ALIGNMENT);
@@ -81,16 +83,16 @@ public class JListChoosePanel extends JPanelBase {
 		panel_6.add(panel_4);
 		panel_4.setLayout(new MigLayout("", "[45px][65px][71px][83.00px][]", "[23px]"));
 		
-		btnOkChooseList = new JButton("Ok");
+		btnOkChooseList = new CButton("Ok",getMainFont());
 		panel_4.add(btnOkChooseList, "cell 0 0,alignx leading,aligny top");
 		
-		JButton btnChooseCancel = new JButton("Cancel");
+		CButton btnChooseCancel = new CButton("Cancel",getMainFont());
 		panel_4.add(btnChooseCancel, "cell 1 0,alignx left,aligny top");
 		
-		btnRenameTable_CL = new JButton("Rename");
+		btnRenameTable_CL = new CButton("Rename",getMainFont());
 		panel_4.add(btnRenameTable_CL, "cell 2 0,alignx left,aligny top");
 		
-		JButton btnDeleteList = new JButton("Delete List");
+		CButton btnDeleteList = new CButton("Delete List",getMainFont());
 		btnDeleteList.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(chooseList.getSelectedRow() > -1){
@@ -112,7 +114,7 @@ public class JListChoosePanel extends JPanelBase {
 		FlowLayout flowLayout = (FlowLayout) panel_5.getLayout();
 		flowLayout.setVgap(0);
 		
-		lblTestMode = new JLabel("Test mode:");
+		lblTestMode = new CLabel("Test mode:",getMainFont());
 		panel_5.add(lblTestMode);
 		
 		panel_DaySpinner = new JPanel();
@@ -121,7 +123,7 @@ public class JListChoosePanel extends JPanelBase {
 		fl_panel_DaySpinner.setVgap(1);
 		fl_panel_DaySpinner.setHgap(0);
 		
-		JLabel lblRedoWordsOldet = new JLabel("Repeat words older than");
+		JLabel lblRedoWordsOldet = new CLabel("Repeat words older than",getMainFont());
 		panel_DaySpinner.add(lblRedoWordsOldet);
 		
 		Component horizontalStrut_1 = Box.createHorizontalStrut(4);
@@ -130,7 +132,7 @@ public class JListChoosePanel extends JPanelBase {
 		Component horizontalStrut_2 = Box.createHorizontalStrut(5);
 		panel_DaySpinner.add(horizontalStrut_2);
 		
-		JLabel lblDays = new JLabel("days");
+		JLabel lblDays = new CLabel("days",getMainFont());
 		panel_DaySpinner.add(lblDays);
 		btnChooseCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

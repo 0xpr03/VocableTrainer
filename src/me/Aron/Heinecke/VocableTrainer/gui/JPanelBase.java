@@ -1,5 +1,7 @@
 package me.Aron.Heinecke.VocableTrainer.gui;
 
+import java.awt.Font;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -21,6 +23,14 @@ public abstract class JPanelBase extends JPanel {
 	
 	protected Logger logger = LogManager.getLogger();
 	private PanelController panelcontroller;
+	/**
+	 * @return
+	 * @see me.Aron.Heinecke.VocableTrainer.gui.PanelController#getDefaultFont()
+	 */
+	public Font getDefaultFont() {
+		return panelcontroller.getDefaultFont();
+	}
+
 	/**
 	 * Does not trigger the requestExit event !
 	 * @param window
@@ -140,5 +150,69 @@ public abstract class JPanelBase extends JPanel {
 	 */
 	private void setDisableExitCheck(boolean disableExitCheck) {
 		this.disableExitCheck = disableExitCheck;
+	}
+
+	/**
+	 * 
+	 * @see me.Aron.Heinecke.VocableTrainer.gui.PanelController#saveFonts()
+	 */
+	public void saveFonts() {
+		panelcontroller.saveFonts();
+	}
+
+	/**
+	 * @return
+	 * @see me.Aron.Heinecke.VocableTrainer.gui.PanelController#getMainFont()
+	 */
+	public Font getMainFont() {
+		return panelcontroller.getMainFont();
+	}
+
+	/**
+	 * @param mainFont
+	 * @see me.Aron.Heinecke.VocableTrainer.gui.PanelController#setMainFont(java.awt.Font)
+	 */
+	public void setMainFont(Font mainFont) {
+		panelcontroller.setMainFont(mainFont);
+	}
+
+	/**
+	 * @param editorFont
+	 * @see me.Aron.Heinecke.VocableTrainer.gui.PanelController#setEditorFont(java.awt.Font)
+	 */
+	public void setEditorFont(Font editorFont) {
+		panelcontroller.setEditorFont(editorFont);
+	}
+
+	/**
+	 * @return
+	 * @see me.Aron.Heinecke.VocableTrainer.gui.PanelController#getTrainerFont()
+	 */
+	public Font getTrainerFont() {
+		return panelcontroller.getTrainerFont();
+	}
+
+	/**
+	 * @param trainerFont
+	 * @see me.Aron.Heinecke.VocableTrainer.gui.PanelController#setTrainerFont(java.awt.Font)
+	 */
+	public void setTrainerFont(Font trainerFont) {
+		panelcontroller.setTrainerFont(trainerFont);
+	}
+
+	/**
+	 * @return
+	 * @see me.Aron.Heinecke.VocableTrainer.gui.PanelController#getEditorFont()
+	 */
+	public Font getEditorFont() {
+		return panelcontroller.getEditorFont();
+	}
+
+	/**
+	 * @return
+	 * @see me.Aron.Heinecke.VocableTrainer.gui.PanelController#getFallbackFontTrainer()
+	 */
+	public Font getFallbackFontTrainer() {
+		return panelcontroller.getFallbackFontTrainer();
 	}
 }

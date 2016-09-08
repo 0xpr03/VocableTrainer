@@ -12,7 +12,6 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -35,7 +34,8 @@ import org.apache.logging.log4j.Logger;
 
 import me.Aron.Heinecke.VocableTrainer.Database;
 import me.Aron.Heinecke.VocableTrainer.gui.PanelController.WINDOW_STATE;
-import me.Aron.Heinecke.VocableTrainer.lib.ColumnNameDialog;
+import me.Aron.Heinecke.VocableTrainer.lib.CButton;
+import me.Aron.Heinecke.VocableTrainer.lib.CLabel;
 import me.Aron.Heinecke.VocableTrainer.lib.DBResult;
 import me.Aron.Heinecke.VocableTrainer.lib.ForcedListSelectionModel;
 import me.Aron.Heinecke.VocableTrainer.lib.TDTableElement;
@@ -58,7 +58,7 @@ public class JListEditPanel extends JPanelBase {
 	private final Logger logger = LogManager.getLogger();
 	
 	private JLabel lblListEditor;
-	private JButton btnRename;
+	private CButton btnRename;
 	private TableListModel listEditModel = new TableListModel();
 
 	private ListData LISTEDITDATA = new ListData();;
@@ -77,7 +77,7 @@ public class JListEditPanel extends JPanelBase {
 
 	private JCheckBox chckbxUseRegex;
 
-	private JButton btnDeleteRow;
+	private CButton btnDeleteRow;
 
 	private JLabel lblCol_b;
 	
@@ -100,7 +100,7 @@ public class JListEditPanel extends JPanelBase {
 		this.add(panel, "cell 0 0,grow");
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		
-		JButton btnLoadList = new JButton("Load List"); // #TEMP
+		CButton btnLoadList = new CButton("Load List",getMainFont()); // #TEMP
 		btnLoadList.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setListPickerData(new ListPickerData(false,WINDOW_STATE.LIST_EDIT));
@@ -112,13 +112,13 @@ public class JListEditPanel extends JPanelBase {
 		Component horizontalGlue = Box.createHorizontalGlue();
 		panel.add(horizontalGlue);
 		
-		lblListEditor = new JLabel("List Editor");
+		lblListEditor = new CLabel("List Editor",getMainFont());
 		panel.add(lblListEditor);
 		
 		Component horizontalGlue_1 = Box.createHorizontalGlue();
 		panel.add(horizontalGlue_1);
 		
-		btnRename = new JButton("Rename List");
+		btnRename = new CButton("Rename List",getMainFont());
 		btnRename.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
@@ -134,10 +134,10 @@ public class JListEditPanel extends JPanelBase {
 			}
 		});
 		
-		JButton btnSetColumns = new JButton("Set Columns");
+		CButton btnSetColumns = new CButton("Set Columns",getMainFont());
 		btnSetColumns.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new ColumnNameDialog(null,LISTEDITDATA.table);
+				new ColumnNameDialog(null,LISTEDITDATA.table,getMainFont());
 				actualizeColName();
 			}
 		});
@@ -174,6 +174,7 @@ public class JListEditPanel extends JPanelBase {
 		        	}
 		        }
 		    }});
+		listeditTable.setFont(getEditorFont());
 		listeditTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent mevent) {
@@ -192,10 +193,11 @@ public class JListEditPanel extends JPanelBase {
 		this.add(panel_2, "cell 0 2,grow");
 		panel_2.setLayout(new MigLayout("", "[][grow]", "[][][][]"));
 		
-		lblCol_a = new JLabel("Vocable:");
+		lblCol_a = new CLabel("Vocable:",getMainFont());
 		panel_2.add(lblCol_a, "cell 0 0,alignx trailing");
 		
 		textEditVocable = new JTextField();
+		textEditVocable.setFont(getEditorFont());
 		textEditVocable.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		textEditVocable.getDocument().addDocumentListener(new DocumentListener() {
 			  public void changedUpdate(DocumentEvent e) {
@@ -226,10 +228,11 @@ public class JListEditPanel extends JPanelBase {
 		panel_2.add(textEditVocable, "cell 1 0,growx");
 		textEditVocable.setColumns(10);
 		
-		lblCol_b = new JLabel("Answer:");
+		lblCol_b = new CLabel("Answer:",getMainFont());
 		panel_2.add(lblCol_b, "cell 0 1,alignx trailing");
 		
 		texteditAnswer = new JTextField();
+		texteditAnswer.setFont(getEditorFont());
 		texteditAnswer.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		texteditAnswer.getDocument().addDocumentListener(new DocumentListener() {
 			  public void changedUpdate(DocumentEvent e) {
@@ -260,10 +263,11 @@ public class JListEditPanel extends JPanelBase {
 		panel_2.add(texteditAnswer, "cell 1 1,growx");
 		texteditAnswer.setColumns(10);
 		
-		JLabel lblTip = new JLabel("Tip:");
+		JLabel lblTip = new CLabel("Tip:",getMainFont());
 		panel_2.add(lblTip, "cell 0 2,alignx trailing");
 		
 		texteditTip = new JTextField();
+		texteditTip.setFont(getEditorFont());
 		texteditTip.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		texteditTip.getDocument().addDocumentListener(new DocumentListener() {
 			  public void changedUpdate(DocumentEvent e) {
@@ -303,7 +307,8 @@ public class JListEditPanel extends JPanelBase {
 		this.add(panel_3, "cell 0 3,grow");
 		panel_3.setLayout(new MigLayout("", "[][][grow,center][]", "[]"));
 		
-		JButton btnSave = new JButton("Save & Exit");
+		CButton btnSave = new CButton("Save & Exit",getMainFont());
+		btnSave.setFont(getMainFont());
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				new EditListSaveWorker(listEditModel, listeditTable, LISTEDITDATA.isNew, LISTEDITDATA.table, layer_editTable).execute();
@@ -311,7 +316,8 @@ public class JListEditPanel extends JPanelBase {
 		});
 		panel_3.add(btnSave, "cell 0 0");
 		
-		JButton btnDiscardChanges = new JButton("Discard Changes");
+		CButton btnDiscardChanges = new CButton("Discard Changes",getMainFont());
+		btnDiscardChanges.setFont(getMainFont());
 		btnDiscardChanges.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int chosen = JOptionPane.showConfirmDialog(getPanel(), "Do you really want to discard all changes ?", "Exit to start", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null);
@@ -327,7 +333,8 @@ public class JListEditPanel extends JPanelBase {
 		chckbxUseRegex.setToolTipText("Use RegEx in this list for answer verification");
 		panel_3.add(chckbxUseRegex, "cell 2 0");
 		
-		btnDeleteRow = new JButton("Delete Row");
+		btnDeleteRow = new CButton("Delete Row",getMainFont());
+		btnDeleteRow.setFont(getMainFont());
 		btnDeleteRow.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				deleteRow();
@@ -335,7 +342,7 @@ public class JListEditPanel extends JPanelBase {
 		});
 		panel_3.add(btnDeleteRow, "flowx,cell 3 0");
 		
-		JButton btnInsertRow = new JButton("Append Row");
+		CButton btnInsertRow = new CButton("Append Row",getMainFont());
 		btnInsertRow.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				addRow();

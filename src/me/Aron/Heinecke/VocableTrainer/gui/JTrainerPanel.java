@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -21,6 +20,8 @@ import javax.swing.UIManager;
 
 import me.Aron.Heinecke.VocableTrainer.Trainer;
 import me.Aron.Heinecke.VocableTrainer.gui.PanelController.WINDOW_STATE;
+import me.Aron.Heinecke.VocableTrainer.lib.CButton;
+import me.Aron.Heinecke.VocableTrainer.lib.CLabel;
 import me.Aron.Heinecke.VocableTrainer.store.ListPickerData;
 import net.miginfocom.swing.MigLayout;
 
@@ -34,9 +35,9 @@ public class JTrainerPanel extends JPanelBase {
 	
 	private JTextArea vocable_showed;
 	private JTextField vocInput;
-	private JButton btnVerify;
-	private JButton btnShowTip;
-	private JButton btnResolve;
+	private CButton btnVerify;
+	private CButton btnShowTip;
+	private CButton btnResolve;
 	private Trainer trainer;
 
 	public JTrainerPanel(PanelController pc) {
@@ -47,14 +48,14 @@ public class JTrainerPanel extends JPanelBase {
 	private void initView(){
 		this.setLayout(new MigLayout("", "[grow]", "[][grow][grow][]"));
 		
-		JLabel lblVocable = new JLabel("Trainer");
+		JLabel lblVocable = new CLabel("Trainer",getMainFont());
 		this.add(lblVocable, "cell 0 0");
 		
 		JScrollPane scrollPane_3 = new JScrollPane();
 		this.add(scrollPane_3, "cell 0 1,grow");
 		
 		vocable_showed = new JTextArea();
-		vocable_showed.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		vocable_showed.setFont(getTrainerFont());
 		scrollPane_3.setViewportView(vocable_showed);
 		vocable_showed.setForeground(new Color(0, 0, 0));
 		vocable_showed.setBackground(UIManager.getColor("EditorPane.background"));
@@ -64,7 +65,7 @@ public class JTrainerPanel extends JPanelBase {
 		this.add(scrollPane_2, "cell 0 2,grow");
 		
 		vocInput = new JTextField();
-		vocInput.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		vocInput.setFont(getTrainerFont());
 		vocInput.setBackground(Color.WHITE);
 		vocInput.setMargin(new Insets(0, 2, 0, 0));
 		vocInput.setCaretColor(Color.BLACK);
@@ -76,7 +77,7 @@ public class JTrainerPanel extends JPanelBase {
 		this.add(panel_1, "cell 0 3,grow");
 		panel_1.setLayout(new MigLayout("", "[415px][415px,grow][]", "[23px]"));
 		
-		btnVerify = new JButton("Verify");
+		btnVerify = new CButton("Verify",getMainFont());
 		btnVerify.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(trainer.verifySolution(vocInput.getText())){
@@ -88,7 +89,7 @@ public class JTrainerPanel extends JPanelBase {
 		});
 		panel_1.add(btnVerify, "flowx,cell 0 0 2 1,alignx left,aligny center");
 		
-		btnShowTip = new JButton("Show Tip");
+		btnShowTip = new CButton("Show Tip",getMainFont());
 		btnShowTip.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				btnShowTip.setEnabled(false);
@@ -100,7 +101,7 @@ public class JTrainerPanel extends JPanelBase {
 		btnShowTip.setToolTipText("Show tip");
 		panel_1.add(btnShowTip, "cell 0 0 2 1,alignx left,aligny center");
 		
-		btnResolve = new JButton("Resolve");
+		btnResolve = new CButton("Resolve",getMainFont());
 		btnResolve.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				vocInput.setText(trainer.getSolution());
@@ -113,7 +114,7 @@ public class JTrainerPanel extends JPanelBase {
 		Component horizontalGlue_2 = Box.createHorizontalGlue();
 		panel_1.add(horizontalGlue_2, "cell 0 0 2 1,alignx left,aligny top");
 		
-		JButton btnExitTrainer = new JButton("Exit Training");
+		CButton btnExitTrainer = new CButton("Exit Training",getMainFont());
 		btnExitTrainer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(!trainer.isFinished()){

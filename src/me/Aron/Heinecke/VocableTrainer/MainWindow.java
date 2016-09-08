@@ -26,13 +26,13 @@ import org.apache.logging.log4j.Logger;
 import me.Aron.Heinecke.VocableTrainer.gui.JListChoosePanel;
 import me.Aron.Heinecke.VocableTrainer.gui.JListEditPanel;
 import me.Aron.Heinecke.VocableTrainer.gui.JPanelBase;
+import me.Aron.Heinecke.VocableTrainer.gui.JSettingsPanel;
 import me.Aron.Heinecke.VocableTrainer.gui.JStartPanel;
 import me.Aron.Heinecke.VocableTrainer.gui.JTrainerPanel;
 import me.Aron.Heinecke.VocableTrainer.gui.JTrainingSettingsPanel;
 import me.Aron.Heinecke.VocableTrainer.gui.PanelController;
 import me.Aron.Heinecke.VocableTrainer.gui.PanelController.WINDOW_STATE;
 
-//TODO: replace table with layered pane
 /**
  * Main application window
  * @author Aron Heinecke
@@ -48,6 +48,9 @@ public class MainWindow {
 	private JPanelBase CURRENT_TAB_PANEL = null;
 	private WINDOW_STATE LAST_TAB = null;
 	private WINDOW_STATE CURRENT_TAB = null;
+	public final String SETTINGS_FONT_GENERAL = "font_general";
+	public final String SETTINGS_FONT_EDITOR = "font_editor";
+	public final String SETTINGS_FONT_TRAINER = "font_trainer";
 	
 	private PanelController panelcontroller;
 
@@ -150,6 +153,9 @@ public class MainWindow {
 			case TRAINER:
 				pb = new JTrainerPanel(panelcontroller);
 				break;
+			case SETTINGS:
+				pb = new JSettingsPanel(panelcontroller);
+				break;
 			default:
 				logger.error("Unknown tab state {}",state);
 			case START:
@@ -178,6 +184,7 @@ public class MainWindow {
 			return;
 		CURRENT_TAB_PANEL.exit();
 		frame.setEnabled(false);
+		saveWindowSettings();
 		System.exit(0);
 	}
 	

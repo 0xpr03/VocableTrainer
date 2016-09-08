@@ -34,7 +34,7 @@ import me.Aron.Heinecke.VocableTrainer.lib.TDTableInfoElement;
  * Global database instance
  * @author Aron Heinecke
  */
-public class Database {
+public class Database<K> {
 	
 	private static final Logger logger = LogManager.getLogger();
 	private static Connection connection = null;
@@ -46,31 +46,36 @@ public class Database {
 	private static int TEMP_ID = 0;
 	
 	private static final String SQL_TBL_VOC = "CREATE [TEMP] TABLE IF NOT EXISTS `%table%` ( "+
-	"`word_a` TEXT NOT NULL, "+
-	"`word_b` TEXT NOT NULL, "+
-	"`tip` TEXT, "+
-	"`points` INTEGER NOT NULL, "+
-	"`last_used` INTEGER NOT NULL, "+
-	"PRIMARY KEY(word_a,word_b) "+
-	")";
+		"`word_a` TEXT NOT NULL, "+
+		"`word_b` TEXT NOT NULL, "+
+		"`tip` TEXT, "+
+		"`points` INTEGER NOT NULL, "+
+		"`last_used` INTEGER NOT NULL, "+
+		"PRIMARY KEY(word_a,word_b) "+
+		")";
 	private static final String SQL_TBL_NAMES = "CREATE TABLE IF NOT EXISTS `voc_tables` ( "
-	+"`name` TEXT, "
-	+"`alias` TEXT, "
-	+"`last_used` INTEGER, "
-	+"`col_a` TEXT, "
-	+"`col_b` TEXT, "
-	+"PRIMARY KEY(name) "
-	+");";
+		+"`name` TEXT, "
+		+"`alias` TEXT, "
+		+"`last_used` INTEGER, "
+		+"`col_a` TEXT, "
+		+"`col_b` TEXT, "
+		+"PRIMARY KEY(name) "
+		+");";
+	private static final String SQL_TBL_SETTINGS = "CREATE TABLE IF NOT EXISTS `settings` ("
+		+"`key` TEXT, "
+		+"`value` TEXT, "
+		+"PRIMARY KEY(key) "
+		+ ");";
 	private static final String SQL_DELETE_NONEXISTENT = "DELETE FROM `%table%` "
-	+"WHERE NOT EXISTS (SELECT 1 "
-    +"FROM `%temp_table%` as tbl2 "
-    +"WHERE `%table%`.word_a  = tbl2.word_a " // we can't use an alias as of DELETE syntax
-    +"AND `%table%`.word_b = tbl2.word_b);";
+		+"WHERE NOT EXISTS (SELECT 1 "
+	    +"FROM `%temp_table%` as tbl2 "
+	    +"WHERE `%table%`.word_a  = tbl2.word_a " // we can't use an alias as of the DELETE syntax
+	    +"AND `%table%`.word_b = tbl2.word_b);";
 	private static final String SQL_UPDATE_VOCS = "INSERT OR REPLACE INTO `%table%` (`word_a`, `word_b`,`tip`,`points`,`last_used`) "
-	+"SELECT `word_a`, `word_b`,`tip`,`points`,`last_used` FROM `%temp_tbl%` WHERE 1;";
+		+"SELECT `word_a`, `word_b`,`tip`,`points`,`last_used` FROM `%temp_tbl%` WHERE 1;";
 	private static final String SQL_RESET_CHANGED = "UPDATE `%temp_tbl%` SET `points` = 0, `last_used` = 0 "
-	+"WHERE NOT EXISTS (SELECT 1 FROM `%table%` as tbl2 "
-	+"WHERE `%temp_tbl%`.word_a = tbl2.word_a AND `%temp_tbl%`.word_b = tbl2.word_b );";
+		+"WHERE NOT EXISTS (SELECT 1 FROM `%table%` as tbl2 "
+		+"WHERE `%temp_tbl%`.word_a = tbl2.word_a AND `%temp_tbl%`.word_b = tbl2.word_b );";
 	public static final String PREFIX_TBL_VOC = "voc_";
 	private static final String PREFIX_TBL_TEMP = "temp_";
 	//private static final String SQL_LIST_TBL_VOC = "SELECT `tbl_name` FROM sqlite_master WHERE type='table' AND `tbl_name` LIKE \"%prefix%\";";
@@ -90,6 +95,9 @@ public class Database {
 	private static final String SQL_UPDATE_TBL_DATE = "UPDATE `voc_tables` SET `last_used` = ? WHERE `name` = ?";
 	private static final String SQL_DELETE_TABLE_INFO = "DELETE FROM `voc_tables` WHERE `name` = ?";
 	private static final String SQL_GET_TRAINING_AMOUNT_VOCS = "SELECT COUNT (*) as amount FROM `%table%` WHERE `last_used` <= ? OR points < ?";
+	private static final String SQL_GET_SETTINGS_ENTRY = "SELECT `value` FROM `settings` WHERE `key` = ?";
+	private static final String SQL_SET_SETTINGS_ENTRY = "INSERT OR REPLACE INTO `settings` (`key`,`value`) VALUES(?,?)";
+	
 	
 	public static void connect() throws SQLException{
 		String path = System.getProperty("user.home");
@@ -107,6 +115,7 @@ public class Database {
 		try {
 			Statement stm = connection.createStatement();
 			stm.execute(SQL_TBL_NAMES);
+			stm.execute(SQL_TBL_SETTINGS);
 			stm.close();
 		} catch (SQLException e) {
 			logger.error("{}",e);
@@ -170,6 +179,54 @@ public class Database {
 	private static long getDateSec(Date date){
 		//logger.debug("Date: {}", date.getTime() / SECONDS_MS);
 		return date.getTime() / SECONDS_MS;
+	}
+	
+	/**
+	 * Get value of settings key
+	 * @param key
+	 * @return DBResult with either an error or one/no value
+	 */
+	public static DBResult<String> getSettingsValue(String key){
+		logger.entry();
+		try{
+			PreparedStatement stm = connection.prepareStatement(SQL_GET_SETTINGS_ENTRY);
+			stm.setString(1, key);
+			ResultSet rs = stm.executeQuery();
+			DBResult<String> dbe;
+			if(rs.next()){
+				dbe = new DBResult<>(rs.getString(1));
+			}else{
+				dbe = new DBResult<>();
+			}
+			rs.close();
+			stm.close();
+			return dbe;
+		} catch (Exception e){
+			logger.error("{}",e);
+			return new DBResult<>(e);
+		}
+	}
+	
+	/**
+	 * Set a key-value settings pair, replacing the existing value
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	public static DBResult setSettingsValue(String key, String value){
+		logger.entry();
+		try{
+			PreparedStatement stm = connection.prepareStatement(SQL_SET_SETTINGS_ENTRY);
+			stm.setString(1, key);
+			stm.setString(2, value);
+			stm.executeUpdate();
+			stm.close();
+			return new DBResult<>();
+		} catch (Exception e){
+			logger.error("{}",e);
+			return new DBResult<>(e);
+		}
 	}
 	
 	/**
