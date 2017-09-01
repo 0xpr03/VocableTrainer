@@ -127,7 +127,10 @@ public class MainWindow {
 		mnHelp.add(mntmAbout);
 		mntmAbout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane.showMessageDialog(frame, "VocableTrainer version "+version+"\nDB version "+Database.getDBVersion()+"\nSQLite "+Database.getSQLiteVersion()+"\nCopyright Aron Heinecke 2016", "About", JOptionPane.INFORMATION_MESSAGE, null);
+				JOptionPane.showMessageDialog(frame, "VocableTrainer version "+version+"\nDB version "+Database.getDBVersion()
+				+"\nSQLite "+Database.getSQLiteVersion()
+				+"\nUsing Apache Commons CSV 1.4"
+				+"\nCopyright Aron Heinecke 2016", "About", JOptionPane.INFORMATION_MESSAGE, null);
 			}
 		});
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
