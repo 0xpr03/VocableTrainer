@@ -10,6 +10,8 @@ import net.miginfocom.swing.MigLayout;
 import me.Aron.Heinecke.VocableTrainer.gui.PanelController;
 import me.Aron.Heinecke.VocableTrainer.gui.PanelController.WINDOW_STATE;
 import me.Aron.Heinecke.VocableTrainer.lib.CButton;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 
 /**
  * Start dialog panel
@@ -53,6 +55,26 @@ public class JStartPanel extends JPanelBase {
 				changeWindow(WINDOW_STATE.LIST_EDIT);
 			}
 		});
+		
+		JPanel panel = new JPanel();
+		add(panel, "cell 0 1,grow");
+		panel.setLayout(new MigLayout("", "[117px,grow,center]", "[25px,grow,center][grow,center]"));
+		
+		JButton btnImport = new CButton("Import",getMainFont());
+		btnImport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				changeWindow(WINDOW_STATE.IMPORT);
+			}
+		});
+		panel.add(btnImport, "cell 0 0,alignx center,aligny center");
+		
+		JButton btnExport = new CButton("Export",getMainFont());
+		btnExport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				changeWindow(WINDOW_STATE.EXPORT);
+			}
+		});
+		panel.add(btnExport, "cell 0 1");
 		this.add(btnNewList, "cell 1 1,alignx center,aligny center");
 	}
 

@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class VocableTrainer {
 	private final static Logger logger = LogManager.getLogger();
-	private final static String version = "0.1.4";
+	private final static String version = "0.1.5";
 	public static void main(String[] args){
 		logger.info("Starting up VocableTrainer version {}",version);
 		try {

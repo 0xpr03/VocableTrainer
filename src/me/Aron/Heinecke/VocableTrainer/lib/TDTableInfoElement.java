@@ -10,6 +10,8 @@ package me.Aron.Heinecke.VocableTrainer.lib;
 
 import java.util.Date;
 
+import me.Aron.Heinecke.VocableTrainer.Database;
+
 /**
  * Object storing table related data
  * Including naming conventions, original name and row count, if given
@@ -35,11 +37,25 @@ public class TDTableInfoElement {
 		this(name,alias,amount_rows,null,"A","B");
 	}
 	
+	/**
+	 * TDTableInforElement which doesn an getNewVocTableName request by itself<br>
+	 * This is only intended for creation of new tables
+	 * @param alias
+	 * @param column_a
+	 * @param column_b
+	 */
+	public TDTableInfoElement(String alias, String column_a, String column_b) {
+		this(Database.getNewVocTableName().value,alias,0,null,column_a,column_b);
+	}
+	
 	public TDTableInfoElement(String name, String alias, int amount_rows,Date last_used, String column_a, String column_b){
 		this.name = name;
 		this.alias = alias;
 		this.renamed = false;
-		this.last_used = last_used;
+		if(last_used != null)
+			this.last_used = last_used;
+		else
+			this.last_used = new Date();
 		this.amount_rows = amount_rows;
 		this.column_a = column_a;
 		this.column_b = column_b;

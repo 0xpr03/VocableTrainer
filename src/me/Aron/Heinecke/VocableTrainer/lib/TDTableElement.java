@@ -21,7 +21,10 @@ public class TDTableElement {
 		this.word_b = word_b;
 		this.Tip = tip;
 		this.points = point;
-		this.date = date;
+		if(date == null)
+			this.date = new Date();
+		else
+			this.date = date;
 		this.table = table;
 	}
 	public TDTableElement(String word_a, String word_b, String tip, Date date, int points) {

@@ -59,7 +59,7 @@ public class Database<K> {
 		+"`last_used` INTEGER, "
 		+"`col_a` TEXT, "
 		+"`col_b` TEXT, "
-		+"PRIMARY KEY(name) "
+		+"PRIMARY KEY(name)"
 		+");";
 	private static final String SQL_TBL_SETTINGS = "CREATE TABLE IF NOT EXISTS `settings` ("
 		+"`key` TEXT, "
@@ -88,6 +88,7 @@ public class Database<K> {
 	private static final String SQL_INSERT_TEMP_VOC = "INSERT INTO `%table%` (`word_a`,`word_b`,`tip`,`points`,`last_used`) VALUES (?,?,?,?,?) ";
 	private static final String SQL_UPDATE_TBL_INFO = "UPDATE `voc_tables` SET `alias` = ?,`col_a` = ?,`col_b` = ? WHERE name = ? ;";
 	private static final String SQL_GET_TABLE_ALIAS = "SELECT `alias` FROM `voc_tables` WHERE name = ?";
+	private static final String SQL_GET_TABLE_NAME = "SELECT `name` FROM `voc_tables` WHERE `alias` = ? AND `col_a` = ? AND `col_b` = ?";
 	private static final String SQL_GET_TABLES = "SELECT `name`,`alias`,`last_used`,`col_a`,`col_b` FROM `voc_tables` WHERE 1";
 	private static final String SQL_GET_NEW_NAME = "SELECT COUNT(*) FROM voc_tables;";
 	private static final String SQL_INSERT_TBL_NAME = "INSERT INTO `voc_tables` (`name`,`alias`,`last_used`,`col_a`,`col_b`) VALUES (?,?,?,?,?);";
@@ -159,6 +160,36 @@ public class Database<K> {
 			stm.close();
 			return dbe;
 		} catch (Exception e){
+			logger.error("{}",e);
+			return new DBResult<String>(e);
+		}
+	}
+	
+	/**
+	 * Returns the name of the table with the specified alias,columnA,columnB if it exists
+	 * @param alias
+	 * @param ColA
+	 * @param ColB
+	 * @return
+	 */
+	public static DBResult<String> getTableName(final String alias, final String ColA, final String ColB){
+		try {
+			PreparedStatement stm = connection.prepareStatement(SQL_GET_TABLE_NAME);
+			stm.setString(1, alias);
+			stm.setString(2, ColA);
+			stm.setString(3, ColB);
+			ResultSet rs = stm.executeQuery();
+			DBResult<String> dbe;
+			if(rs.next()) {
+				dbe = new DBResult<>(rs.getString(1));
+			}else {
+				dbe = new DBResult<>();
+			}
+			
+			rs.close();
+			stm.close();
+			return dbe;
+		} catch (Exception e) {
 			logger.error("{}",e);
 			return new DBResult<String>(e);
 		}
@@ -290,7 +321,7 @@ public class Database<K> {
 	}
 	
 	/**
-	 * Retrive a new table name
+	 * Retrieve a new table name
 	 * Not thread safe
 	 * @return
 	 */
@@ -338,10 +369,12 @@ public class Database<K> {
 	 */
 	@SuppressWarnings("rawtypes")
 	public static DBResult updateVocs(List<TDTableElement> data, TDTableInfoElement table) {
+		logger.entry();
 		String temp_tbl = getTempName();
 		try {
 			{ // insert tbl into voc_table if not existent (new tbl)
 				Statement stm =  connection.createStatement();
+				logger.debug("Table: {} {} {} {}",table.getName(),table.getAlias(),table.getColumn_a(),table.getColumn_b());
 				if(getTableAlias(table.getName()).value == null){
 					stm.execute(getSQL_TBL_VOC(false,table.getName()));
 					PreparedStatement stm_2 = connection.prepareStatement(SQL_INSERT_TBL_NAME);
@@ -356,6 +389,7 @@ public class Database<K> {
 				stm.execute(getSQL_TBL_VOC(true,temp_tbl));
 				stm.close();
 			}
+			logger.entry("step 2");
 			{ // insert everything into temp db
 				String sql = SQL_INSERT_TEMP_VOC.replace("%table%", temp_tbl);
 				logger.debug(sql);
@@ -402,11 +436,12 @@ public class Database<K> {
 			return new DBResult(e);
 		} finally {
 			try {
+				logger.entry("final clause");
 				Statement stm = connection.createStatement();
 				stm.execute(getSQL_DELETE_TBL(temp_tbl));
 				stm.close();
 			} catch (SQLException e) {
-				logger.error("{}",e);
+				logger.warn("{}",e);
 			}
 		}
 		return new DBResult();

@@ -230,7 +230,7 @@ public class JListChoosePanel extends JPanelBase {
 	 * Worker performing the list indexing needed by the list picker
 	 * @author Aron Heinecke
 	 */
-	class ChooseListWorker extends SwingWorker<DBResult<List<TDTableInfoElement>>, Object> {
+	public static class ChooseListWorker extends SwingWorker<DBResult<List<TDTableInfoElement>>, Object> {
 		private WaitLayerUI layer;
 		private TableChooseModel model;
 		public ChooseListWorker(WaitLayerUI layer, TableChooseModel tableModel) {

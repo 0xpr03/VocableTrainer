@@ -25,6 +25,8 @@ import javax.swing.JOptionPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import me.Aron.Heinecke.VocableTrainer.gui.JExportPanel;
+import me.Aron.Heinecke.VocableTrainer.gui.JImportPanel;
 import me.Aron.Heinecke.VocableTrainer.gui.JListChoosePanel;
 import me.Aron.Heinecke.VocableTrainer.gui.JListEditPanel;
 import me.Aron.Heinecke.VocableTrainer.gui.JPanelBase;
@@ -182,6 +184,12 @@ public class MainWindow {
 				logger.error("Unknown tab state {}",state);
 			case START:
 				pb = new JStartPanel(panelcontroller);
+				break;
+			case EXPORT:
+				pb = new JExportPanel(panelcontroller);
+				break;
+			case IMPORT:
+				pb = new JImportPanel(panelcontroller);
 				break;
 			}
 			LAST_TAB_PANEL = CURRENT_TAB_PANEL;
